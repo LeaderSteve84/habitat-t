@@ -25,6 +25,7 @@ class Config:
     JWT_TOKEN_LOCATION = ast.literal_eval(os.environ.get('JWT_TOKEN_LOCATION'))
     JWT_COOKIE_SECURE = os.environ.get('JWT_COOKIE_SECURE')
     JWT_COOKIE_CSRF_PROTECT = False  # Add this line to disable CSRF protection
+    FRONTEND_URL = os.environ.get('FRONTEND_URL')
 
 
 class TestingConfig(Config):

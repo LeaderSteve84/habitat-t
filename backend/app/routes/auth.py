@@ -110,11 +110,11 @@ def reset_password(token):
         return jsonify({"msg": "Missing JSON in request"}), 400
 
     data = request.get_json()
-    new_password = data.get('new_password')
-    confirm_password = data.get('confirm_password')
+    new_password = data.get('newPassword')
+    confirm_password = data.get('confirmPassword')
 
     if not new_password or not confirm_password:
-        return jsonify({"msg": "Missing new password or confirmation"}), 400
+        return jsonify({"msg": "Missing new password or confirm password"}), 400
 
     if new_password != confirm_password:
         return jsonify({"msg": "Passwords do not match"}), 400
@@ -148,7 +148,7 @@ def reset_password(token):
     return jsonify({"msg": "Password has been reset"}), 200
 
 @auth_bp.route('/api/logout', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def logout():
     jti = get_jwt()['jti']
     revoked_tokens.add(jti)

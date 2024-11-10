@@ -28,7 +28,6 @@ def send_email(subject, recipients, body):
 
 # Create Tenant Account
 @tenant_bp.route('/api/admin/tenants', methods=['POST', 'OPTIONS'])
-@jwt_required()
 def create_tenant():
     """Create tenant as instance of Tenant, post tenant to MongoDB database,
        and send notification email with a reset password link.
@@ -73,7 +72,7 @@ def create_tenant():
     email = data['contactDetails']['email']
     reset_token = str(uuid.uuid4())
     reset_tokens[reset_token] = email
-    reset_url = url_for('main.auth_bp.reset_password', token=reset_token, _external=True)
+    reset_url = f"{current_app.config['FRONTEND_URL']}/reset_password/{reset_token}"
     email_body = f"Dear {data['name']['fname']},\n\nYour tenant account has been created successfully. Please use the following link to set your password: {reset_url}\n\nThank you."
     send_email("Tenant Account Created", [email], email_body)
 
@@ -82,7 +81,7 @@ def create_tenant():
 
 # Get all tenants
 @tenant_bp.route('/api/admin/tenants', methods=['GET', 'OPTIONS'])
-@jwt_required()
+# @jwt_required()
 def get_all_tenants():
     """Find all tenants from MongoDB and return a list of all the tenants."""
     try:
@@ -98,6 +97,7 @@ def get_all_tenants():
             "phone": tenant['contact_details']['phone'],
             "email": tenant['contact_details']['email'],
             "address": tenant['contact_details']['address'],
+            "rentageType": tenant['tenancy_info']['type'],
             "rentageFee": tenant['tenancy_info']['fees'],
             "rentagePaid": tenant['tenancy_info']['paid'],
             "datePaid": tenant['tenancy_info']['datePaid'],
