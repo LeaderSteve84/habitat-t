@@ -86,7 +86,7 @@ export default function Login() {
                                 <button type="submit" className="btn btn-primary w-100">Login</button>
                             </form>
                             <div className="text-center mt-3">
-                                <Link to="/forgot_password" className="text-muted">Forgot Password?</Link>
+                                <Link className="nav-link" as={Link} to="/forgot_password">Forgot Password?</Link>
                             </div>
                         </div>
                     </div>

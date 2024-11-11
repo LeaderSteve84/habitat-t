@@ -9,6 +9,7 @@ from werkzeug.security import generate_password_hash
 from bson.errors import InvalidId
 import uuid
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from itsdangerous import URLSafeTimedSerializer
 
 
 tenant_bp = Blueprint('tenant', __name__)
@@ -16,6 +17,12 @@ logger = current_app.logger
 mail = current_app.mail
 reset_tokens = {}
 tenantsCollection = current_app.tenantsCollection
+
+# Function to generate reset token
+def generate_reset_token(email):
+    """to generate the reset token"""
+    s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    return s.dumps(email, salt='password-reset-salt')
 
 # Utility function to send emails
 def send_email(subject, recipients, body):
@@ -70,9 +77,8 @@ def create_tenant():
 
     # Send notification email with a reset password link
     email = data['contactDetails']['email']
-    reset_token = str(uuid.uuid4())
-    reset_tokens[reset_token] = email
-    reset_url = f"{current_app.config['FRONTEND_URL']}/reset_password/{reset_token}"
+    token = generate_reset_token(email)
+    reset_url = f"{current_app.config['FRONTEND_URL']}/reset_password/{token}"
     email_body = f"Dear {data['name']['fname']},\n\nYour tenant account has been created successfully. Please use the following link to set your password: {reset_url}\n\nThank you."
     send_email("Tenant Account Created", [email], email_body)
 

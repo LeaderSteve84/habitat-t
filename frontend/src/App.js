@@ -2,8 +2,6 @@ import { createBrowserRouter, RouterProvider, createRoutesFromElements, Route } 
 
 // imports the various components
 import Landing from "./components/landingPage/Landing";
-import Login from "./components/auth/Login";
-import ResetPassword from "./components/auth/ResetPassword";
 import About from "./components/aboutPage/About";
 import NavigationBar from "./components/landingPage/NavigationBar";
 import Contact from "./components/contact/Contact";
@@ -39,7 +37,9 @@ import UploadDocument from "./components/uploadDocument/UploadDocument";
 // import from auth
 import ChangePassword from "./components/auth/ChangePassword";
 import Logout from "./components/auth/Logout";
-
+import ForgotPassword from "./components/auth/ForgotPassword";
+import Login from "./components/auth/Login";
+import ResetPassword from "./components/auth/ResetPassword";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -50,6 +50,7 @@ const router = createBrowserRouter(
           <Route path="contact" element={<Contact />} />
           <Route path="login" element={<Login />} />
           <Route path="reset_password/:token" element={<ResetPassword />} />
+          <Route path="forgot_password" element={<ForgotPassword />} />
     </Route>
     <Route path="AdminDashboard" element={<AdminNavBar />}>
           <Route index element={<AdminDashboard />} />

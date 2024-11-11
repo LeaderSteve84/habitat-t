@@ -60,7 +60,7 @@ const AdmitTenant = () => {
 	  expires: formatDate(formData.tenancyInfo.expires)
         }, 
         password: autoGeneratePassword(), 
-        role: "role",
+        role: "tenant",
         DoB: formatDate(formData.DoB)
       };
       const response = await axios.post("/api/admin/tenants", data);
@@ -78,9 +78,8 @@ const AdmitTenant = () => {
       }
 
     } catch (error) {
-      const errorMessage = error.response?.error?.message || "error admitting tenant";
+      const errorMessage = error.response?.error?.message || "Error admitting tenant";
       setMessage({ error: errorMessage });
-      console.error("Error Admitting Tenant:", error);
     }
   };
 

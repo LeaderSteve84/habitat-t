@@ -7,24 +7,37 @@ const ResetPassword = () => {
   console.log(token);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState(null);
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post(`/api/reset_password/${token}`, { newPassword, confirmPassword });
-      setMessage("Password reset successfully");
-      console.log(response.data);
+      if (response.status === 200) {
+        const { msg } = response.data;
+        setMessage({ msg: msg?.toString() });
+      } else if (response.status === 404) {
+        const { msg } = response.data;
+        setMessage({ msg: msg?.toString() });
+      } else {
+        const { error } = response.data;
+        setMessage({ error: error?.toString() });
+      }
     } catch (error) {
-      console.log("Error resetting password:", error);
-      setMessage("Error resetting password. Please try again");
+      const errorMessage = error.response?.error?.message || "Error admitting tenant";
+      setMessage({ error: errorMessage });
     }
   };
 
   return (
     <div className="container mt-5">
        <h2 className="text-center mb-4">Reset Password</h2>
-       {message && <div className="alert alert-info">{message}</div>}
+       { message && (
+             <div>
+               {message.msg && <div className="alert alert-info">{message.msg}</div>}
+               {message.error && <div className="alert alert-danger">{message.error}</div>}
+             </div>
+       )}
        <div className="row justify-content-center">
           <div className="col-md-6">
           <form onSubmit={handleResetPassword} className="p-4 border rounded">
@@ -44,7 +57,6 @@ const ResetPassword = () => {
           </form>
           </div>
        </div>
-       <p className="text-center">token: { token }</p>
     </div>
   );
 }
