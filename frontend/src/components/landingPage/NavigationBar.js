@@ -6,15 +6,18 @@ export default function NavigationBar() {
       <>
         <Navbar bg="dark" variant="dark" expand="lg">
            <Container>
-              <Navbar.Brand>
-                 <img src="https://ik.imagekit.io/rmhnagyqw/habitatT/logo.png?updatedAt=1720008714144" alt="logo" className='h-12 w-12' style={{ width: 60, height: 60 }}/>
+              <Navbar.Brand className="d-flex align-items-center">
+                 <img src="https://ik.imagekit.io/rmhnagyqw/habitatT/logo.png?updatedAt=1720008714144" alt="logo" className='me-2' style={{ width: 50, height: 50 }}/>
               </Navbar.Brand>
-              <Nav className="me-auto">
-                <Nav.Link as={Link} to="/">Home</Nav.Link>
-                <Nav.Link as={Link} to="/about">About Us</Nav.Link>
-                <Nav.Link as={Link} to="/contact">Contact Us</Nav.Link>
-                <Nav.Link as={Link} to="/login">Login</Nav.Link> 
-              </Nav>
+              <Navbar.Toggle aria-controls="navbar-nav"/>
+              <Navbar.Collapse id="navbar-nav">
+                <Nav className="ms-auto">
+                  <Nav.Link as={Link} to="/">Home</Nav.Link>
+                  <Nav.Link as={Link} to="/about">About Us</Nav.Link>
+                  <Nav.Link as={Link} to="/contact">Contact Us</Nav.Link>
+                  <Nav.Link as={Link} to="/login">Login</Nav.Link> 
+                </Nav>
+              </Navbar.Collapse>
            </Container>
         </Navbar>
         <Outlet />

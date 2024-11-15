@@ -11,21 +11,31 @@ function AdminNavBar() {
 
   return (
     <>
-      <div>
+      <div className="container d-flex justify-content-between align-items-center py-3">
+	 <div>
+         <img
+            src="https://ik.imagekit.io/rmhnagyqw/habitatT/logo.png?updatedAt=1720008714144"
+            alt="logo"
+	    className="img-fluid"
+            style={{ width: 80, height: 80 }}
+         />
+         </div>	
       <Button variant="primary" onClick={handleShow}>
           Menu
       </Button>
+      </div>
 
       <Offcanvas show={show} onHide={handleClose} scroll="true">
         <Offcanvas.Header closeButton>
-          <Offcanvas.Title>
+          <Offcanvas.Title className="d-flex align-items-center">
 	     <div>
                 <img
                 src="https://ik.imagekit.io/rmhnagyqw/habitatT/logo.png?updatedAt=1720008714144"
                 alt="logo"
                 style={{ width: 60, height: 60 }}
+                className="me-2"
                 />
-	        <h2 className="h5 fw-bold text">Admin Menu</h2>
+	        <h2 className="h5 fw-bold text mb-0">Admin Menu</h2>
              </div>
 	  </Offcanvas.Title>
         </Offcanvas.Header>
@@ -34,7 +44,7 @@ function AdminNavBar() {
                     <Link className="nav-link" as={Link} to="/AdminDashboard">Dashboard</Link>
                     <Link className="nav-link" as={Link} to="/AdminDashboard/Chat">Chat Room</Link>
                     <Link className="nav-link" as={Link} to="/AdminDashboard/AdmitTenant">Admit Tenant</Link>
-                    <Link className="nav-link" as={Link} to="/AdminDashboard/ViewTenants">View Tenants</Link>
+                    <Link className="nav-link" as={Link} to="/AdminDashboard/ViewTenants">View All Tenants</Link>
                     <Link className="nav-link" as={Link} to="/AdminDashboard/AddProperty">Property Entry</Link>
                     <Link className="nav-link" as={Link} to="/AdminDashboard/ViewProperties">View All Properties</Link>
                     <Link className="nav-link" as={Link} to="/AdminDashboard/ListProperty">List Properties</Link>
@@ -50,7 +60,7 @@ function AdminNavBar() {
            </nav>
         </Offcanvas.Body>
       </Offcanvas>
-      </div>
+
       <Outlet />
     </>
   );

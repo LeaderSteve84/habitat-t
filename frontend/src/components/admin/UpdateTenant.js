@@ -1,10 +1,16 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import useFetch from "../customHooks/useFetch";
 
-const AdmitTenant = () => {
+const UpdateTenant = () => {
 
   const navigate = useNavigate();
+  const { id } = useParams();
+
+  const [message, setMessage] = useState(null);
+
+  //const [formData, setFormData] = useState({});
 
   const [formData, setFormData] = useState({
     name: {fname: '', lname: ''},
@@ -14,13 +20,22 @@ const AdmitTenant = () => {
     emergencyContact: { name: '', phone: '', address: '' },
     tenancyInfo: { type: '', fees: '', paid: '', datePaid: '', start: '', expires: '', arrears: '' },
     leaseAgreementDetails: '',
-    role: '',
+    role: ''
   });
+        
+    const URL = `http://localhost:5000/api/admin/tenants/${id}`;
+    const { data: tenant, isPending, error } = useFetch(URL);
 
-  const autoGeneratePassword = () => {
+  setTimeout(() => {
+    if (tenant) {
+      setFormData({ ...formData, tenant });
+    }
+  }, 1000);
+
+  //const autoGeneratePassword = () => {
     // Generate a random password function
-    return Math.random().toString(36).slice(-8);
-  };
+   // return Math.random().toString(36).slice(-8);
+  // };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,7 +65,7 @@ const AdmitTenant = () => {
     return [year, month, day].join('-');
   };
 
-  const [message, setMessage] = useState(null);
+  //const [message, setMessage] = useState(null);
     
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,11 +79,11 @@ const AdmitTenant = () => {
 	  start: formatDate(formData.tenancyInfo.start),
 	  expires: formatDate(formData.tenancyInfo.expires)
         }, 
-        password: autoGeneratePassword(), 
-        role: "tenant",
+        // password: autoGeneratePassword(), 
+        //role: "tenant",
         DoB: formatDate(formData.DoB)
       };
-      const response = await axios.post("/api/admin/tenants", data);
+      const response = await axios.post(`/api/admin/tenants/${id}`, data);
       const { msg } = response.data;
       setMessage({
         msg: msg?.toString()
@@ -76,7 +91,7 @@ const AdmitTenant = () => {
       navigate("/AdminDashboard/ViewTenants");
 
     } catch (error) {
-      const errorMessage = error.response?.data?.error || "Error admitting tenant";
+      const errorMessage = error.response?.data?.error || "Error updating tenant";
       setMessage({ error: errorMessage });
     }
   };
@@ -87,7 +102,9 @@ const AdmitTenant = () => {
       <div className="col-md-9">
       <div className="card shadow-lg">
       <div className="card-body">
-      <h2 className="card-title text-center mb-4">Admit Tenant</h2>
+      <h2 className="card-title text-center mb-4">Update Tenant</h2>
+      { error && <div className="alert alert-danger">{ error.error }</div> }
+      { isPending && <div className="text-center">Loading...</div> }
       { message && (
         <div>
            { message.msg && <p className="alert alert-info">{ message.msg }</p> }
@@ -228,4 +245,4 @@ const AdmitTenant = () => {
   );
 }
 
-export default AdmitTenant;
+export default UpdateTenant;

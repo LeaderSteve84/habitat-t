@@ -17,6 +17,8 @@ import ListProperty from "./components/admin/ListProperty";
 import ListedProperties from "./components/admin/ListedProperties";
 import CreateAnnouncement from "./components/admin/CreateAnnouncement";
 import ViewAnnouncements from "./components/admin/ViewAnnouncements";
+import TenantDetails from "./components/admin/TenantDetails";
+import UpdateTenant from "./components/admin/UpdateTenant";
 
 // import from tenant directory
 import TenantNavBar from "./components/tenant/TenantNavBar";
@@ -57,6 +59,8 @@ const router = createBrowserRouter(
           <Route path="Chat" element={<Chat />} />
           <Route path="AdmitTenant" element={<AdmitTenant />} />
           <Route path="ViewTenants" element={<ViewTenants />} />
+          <Route path="TenantDetails/:id" element={<TenantDetails />} />
+          <Route path="UpdateTenant/:id" element={<UpdateTenant />} />
           <Route path="AddProperty" element={<AddProperty />} />
           <Route path="ViewProperties" element={<ViewProperties />} />
           <Route path="ListProperty" element={<ListProperty />} />

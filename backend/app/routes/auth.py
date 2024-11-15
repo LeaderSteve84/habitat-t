@@ -19,21 +19,16 @@ adminsCollection = current_app.adminsCollection
 
 # function to authenticate
 def authenticate(email, password, role):
-    # email = email.strip().lower()
-    # logger.debug(f"Authenticating user with email: {email} and role: {role}")
-    
+    """to authenticate the user"""
     if role == 'admin':
         user = adminsCollection.find_one({"contact_details.email": email})
     elif role == 'tenant':
         user = tenantsCollection.find_one({"contact_details.email": email})
     else:
-        # logger.debug("Invalid role provided")
         return None
     
     if user and check_password_hash(user["password"], password):
-        # logger.debug("Password match!")
         return user
-    # logger.debug("Authentication failed!")
     return None
 
 # function to verify reset token
@@ -49,36 +44,31 @@ def verify_reset_token(token, expiration=259200):
 @auth_bp.route('/api/login', methods=['POST', 'OPTIONS'])
 def login():
     if not request.is_json:
-        # logger.debug("Request missing JSON")
         return jsonify({"error": "Missing JSON in request"}), 400
 
     data = request.get_json()
 
-    email = data.get('email').strip().lower() if data.get('email') else None
+    email = data.get('email')
     password = data.get('password')
     role = data.get('role')
     remember_me = data.get('remember_me', False)
     
     if not email or not password or not role:
-        # logger.debug("Missing email, password, or role")
         return jsonify({"error": "Missing email, password, or role"}), 400
     
     user = authenticate(email, password, role)
     
     if not user:
-        # logger.debug("Authentication failed")
-        return jsonify({"msg": "Invalid email, password, or role"}), 401
+        return jsonify({"error": "Invalid email, password, or role"}), 401
     
     if user['role'] == 'tenant' and not user.get('active', False):
-        # logger.debug("Tenant account is not active")
-        return jsonify({"msg": "Account is not active"}), 403
+        return jsonify({"error": "Account is not active, contact admin"}), 403
     
     expires = datetime.timedelta(days=7) if remember_me else datetime.timedelta(hours=1)
-    access_token = create_access_token(identity={"email": email, "role": role}, expires_delta=expires)
-    response = jsonify(msg="You have successfully logged in", access_token=access_token)
+    access_token = create_access_token(identity={"email": email, "role": role, "id": str(user["_id"])}, expires_delta=expires)
+    response = jsonify(msg="Login successful")
     set_access_cookies(response, access_token)
 
-    logger.debug("User authenticated successfully")
     return response
 
 
@@ -95,7 +85,7 @@ def forgot_password():
     
     user = tenantsCollection.find_one({"contact_details.email": email}) or adminsCollection.find_one({"contact_details.email": email})
     if not user:
-        return jsonify({"msg": "Email not found or wrong email"}), 404
+        return jsonify({"error": "Email not found or wrong email"}), 404
     
     token = generate_reset_token(email)
     reset_url = f"{current_app.config['FRONTEND_URL']}/reset_password/{token}"
@@ -103,9 +93,11 @@ def forgot_password():
     msg = Message(
             subject="Password Reset Request",
             recipients=[email],
-            body=f'Reset your password using the following link: \
-                    {reset_url} Please ignore if you did not \
-                    initiate this request'
+            body=(
+                f'Reset your password using the following link:\n'
+                f'{reset_url}\n'
+                'Please ignore if you did not initiate this request'
+                )
             )
 
     try:
@@ -136,7 +128,7 @@ def reset_password(token):
 
     user = tenantsCollection.find_one({"contact_details.email": email}) or adminsCollection.find_one({"contact_details.email": email})
     if not user:
-        return jsonify({"msg": "User not found"}), 404
+        return jsonify({"error": "User not found"}), 404
     
     new_hashed_password = generate_password_hash(new_password)
     user_role = user.get('role')  # check user role

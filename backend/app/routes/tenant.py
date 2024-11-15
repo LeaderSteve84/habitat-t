@@ -49,8 +49,8 @@ def create_tenant():
             ]
         }):
             return jsonify(
-                {"error": "Tenant with same email or phone exist"}
-            )
+                {"error": "Tenant with same email or phone exist or inactive"}
+            ), 400
 
         tenant = Tenant(
             name=data['name'],
@@ -79,7 +79,13 @@ def create_tenant():
     email = data['contactDetails']['email']
     token = generate_reset_token(email)
     reset_url = f"{current_app.config['FRONTEND_URL']}/reset_password/{token}"
-    email_body = f"Dear {data['name']['fname']},\n\nYour tenant account has been created successfully. Please use the following link to set your password: {reset_url}\n\nThank you."
+    email_body = (
+        f"Dear {data['name']['fname']},\n"
+        f"Your tenant account has been created successfully.\n"
+        f"Please use the following link to set your password:\n"
+        f"{reset_url}\n"
+        "Thank you."
+        )
     send_email("Tenant Account Created", [email], email_body)
 
     return jsonify({"msg": "Tenant created successfully", "tenantId": str(tenant_id)}), 201
@@ -113,6 +119,7 @@ def get_all_tenants():
             "emergencyContactName": tenant['emergency_contact']['name'],
             "emergencyContactPhone": tenant['emergency_contact']['phone'],
             "emergencyContactAddress": tenant['emergency_contact']['address'],
+            "role": tenant['role'],
             "leaseAgreementDetails": tenant['lease_agreement_details']
         } for tenant in tenants]
         return jsonify(tenants_list), 200
@@ -139,15 +146,18 @@ def get_tenant(tenant_id):
                 "phone": tenant['contact_details']['phone'],
                 "email": tenant['contact_details']['email'],
                 "address": tenant['contact_details']['address'],
+                "rentageType": tenant['tenancy_info']['type'],
                 "rentageFee": tenant['tenancy_info']['fees'],
                 "rentagePaid": tenant['tenancy_info']['paid'],
                 "datePaid": tenant['tenancy_info']['datePaid'],
-                "rantageStarted": tenant['tenancy_info']['start'],
-                "rantageExpires": tenant['tenancy_info']['expires'],
+                "rentageStarted": tenant['tenancy_info']['start'],
+                "rentageExpires": tenant['tenancy_info']['expires'],
                 "rentageArrears": tenant['tenancy_info']['arrears'],
                 "emergencyContactName": tenant['emergency_contact']['name'],
                 "emergencyContactPhone": tenant['emergency_contact']['phone'],
                 "emergencyContactAddress": tenant['emergency_contact']['address'],
+                "role": tenant['role'],
+                "active": tenant['active'],
                 "lease_agreement_details": tenant['lease_agreement_details']
             }), 200
         else:
@@ -162,7 +172,7 @@ def get_tenant(tenant_id):
 
 # Update Specific Tenant Details
 @tenant_bp.route('/api/admin/tenants/<tenant_id>', methods=['PUT', 'OPTIONS'])
-@jwt_required()
+# @jwt_required()
 def update_tenant(tenant_id):
     """Update a specific tenant with a tenant_id.
     Args:
@@ -178,7 +188,8 @@ def update_tenant(tenant_id):
             "contact_details": data['contactDetails'],
             "emergency_contact": data['emergencyContact'],
             "tenancy_info": data['tenancyInfo'],
-            "lease_agreement_details": data['leaseAgreementDetails']
+            "lease_agreement_details": data['leaseAgreementDetails'],
+            "role": data['role'],
         }
     except KeyError as e:
         return jsonify({"error": f"Missing field {str(e)}"}), 400
@@ -200,9 +211,10 @@ def update_tenant(tenant_id):
 
 # Deactivate/Delete Tenant Account
 @tenant_bp.route('/api/admin/tenants/<tenant_id>', methods=['DELETE', 'OPTIONS'])
-@jwt_required()
+# @jwt_required()
 def delete_tenant(tenant_id):
-    """Update a specific tenant with a tenant_id, setting the active attribute to False.
+    """Deactivate a specific tenant with a tenant_id, updating/setting
+    the active attribute to False.
     Args:
         tenant_id (str): tenant unique id
     """
