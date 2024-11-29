@@ -47,10 +47,11 @@ def initialize_collections(client: MongoClient, db_name: str):
     logRequestsCollection: Collection = database.get_collection("logRequests")
     adminsCollection: Collection = database.get_collection("admins")
     messagesCollection: Collection = database.get_collection("messages")
+    profileCollection: Collection = database.get_collection("profile")
     return (
         tenantsCollection, adminMessagesCollection, propertiesCollection,
         listingCollection, logRequestsCollection, adminsCollection,
-        messagesCollection
+        messagesCollection, profileCollection
     )
 
 
@@ -93,6 +94,8 @@ def create_app(config_name='default'):
     app.mail = mail  # set mail into app context
     jwt = JWTManager(app)
     socketio.init_app(app)
+    app.socketio = socketio  # set socketio into app context
+
 
     # create SMTP handler and added to the root logger
     mail_handler = SMTPHandler(
@@ -130,7 +133,7 @@ def create_app(config_name='default'):
         mongo_client: MongoClient = init_mongo_client(CONNECTION_STRING)
         (tenantsCollection, adminMessagesCollection, propertiesCollection,
             listingCollection, logRequestsCollection, adminsCollection,
-            messagesCollection) = initialize_collections(mongo_client, DB_NAME)
+            messagesCollection, profileCollection) = initialize_collections(mongo_client, DB_NAME)
     except (errors.ConnectionFailure, errors.ConfigurationError) as e:
         mongo_client = None
         tenantsCollection = None
@@ -140,6 +143,7 @@ def create_app(config_name='default'):
         logRequestsCollection = None
         adminsCollection = None
         messagesCollection = None
+        profileCollection = None
         print(f"Database initialization failed: {e}")
 
     # Store collections in the app context
@@ -150,6 +154,7 @@ def create_app(config_name='default'):
     app.logRequestsCollection = logRequestsCollection
     app.adminsCollection = adminsCollection
     app.messagesCollection = messagesCollection
+    app.profileCollection = profileCollection
 
     with app.app_context():
         # Import routes here to avoid circular imports

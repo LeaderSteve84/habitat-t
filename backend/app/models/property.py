@@ -31,7 +31,7 @@ class Property:
         """Returns the dictionary of all the property attributes"""
         return {
             "_id": self.property_id,
-            "date_created": self.address,
+            "date_created": self.date_created,
             "address": self.address,
             "type": self.property_type,
             "unit_availability": self.unit_availability,

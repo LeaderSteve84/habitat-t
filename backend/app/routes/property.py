@@ -38,7 +38,7 @@ def create_property():
 
     property_id = insert_result.inserted_id
     return jsonify(
-        {"msg": "prop. created successfully", "prop_Id": str(property_id)}
+        {"msg": "property entered successfully", "prop_Id": str(property_id)}
     ), 201
 
 
@@ -122,10 +122,39 @@ def update_property(property_id):
         return jsonify({"error": str(e)}), 500
 
 
+# Update Property Unit Availability
+@property_bp.route('/api/admin/properties/<property_id>/availability', methods=['PUT', 'OPTIONS'])
+def update_unit_availability(property_id):
+    """Update Only the unitAvailability attribte of a specific property."""
+    data = request.json
+
+    try:
+        # Extract and validate unitAvailability from request data
+        unit_availability = data.get('unitAvailability')
+        if unit_availability is None:
+            return jsonify({"error": "unitAvailability field is required"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    try:
+        # Perform the update in the database
+        result = propertiesCollection.update_one(
+          {"_id": ObjectId(property_id)}, {"$set": {"unit_availability": unit_availability}}
+        )
+        if result.matched_count == 0:
+            return jsonify({"msg": "Property not found"}), 404
+
+        return jsonify({"msg": "unitAvailability updated successfully"}), 200
+    except InvalidId:
+        return jsonify({"error": "Invalid property format"}), 404
+    except PyMongoError as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # Delete Property
 @property_bp.route('/api/admin/properties/<property_id>', methods=['DELETE', 'OPTIONS'])
 def delete_property(property_id):
-    """Dlete a specific property by ID."""
+    """Delete a specific property by ID."""
     try:
         result = propertiesCollection.delete_one(
             {"_id": ObjectId(property_id)}

@@ -41,24 +41,15 @@ def create_tenant():
     """
     data = request.json
     try:
-        # Check if a tenant with same email or phone number already exist
-        if tenantsCollection.find_one({
-            "$or": [
-                {"contact_details.email": data['contactDetails']['email']},
-                {"contact_details.phone": data['contactDetails']['phone']}
-            ]
-        }):
+        # Check if a tenant/client with same email or phone number already exist
+        if tenantsCollection.find_one({"email": data['email']}):
             return jsonify(
-                {"error": "Tenant with same email or phone exist or inactive"}
+                {"error": "Tenant with same email exist or inactive"}
             ), 400
 
         tenant = Tenant(
-            name=data['name'],
+            email=data['email'],
             password=generate_password_hash(data['password']),
-            dob=data['DoB'],
-            sex=data['sex'],
-            contact_details=data['contactDetails'],
-            emergency_contact=data['emergencyContact'],
             tenancy_info=data['tenancyInfo'],
             lease_agreement_details=data['leaseAgreementDetails'],
             role=data['role']
@@ -76,11 +67,11 @@ def create_tenant():
     tenant_id = insert_result.inserted_id
 
     # Send notification email with a reset password link
-    email = data['contactDetails']['email']
+    email = data['email']
     token = generate_reset_token(email)
     reset_url = f"{current_app.config['FRONTEND_URL']}/reset_password/{token}"
     email_body = (
-        f"Dear {data['name']['fname']},\n"
+        f"Hi,\n"
         f"Your tenant account has been created successfully.\n"
         f"Please use the following link to set your password:\n"
         f"{reset_url}\n"
@@ -102,23 +93,15 @@ def get_all_tenants():
             "tenantId": str(tenant['_id']),
             "dateCreated": tenant['date_created'],
             "lastUpdated": tenant['date_updated'],
-            "fname": tenant['name']['fname'],
-            "lname": tenant['name']['lname'],
-            "sex": tenant['sex'],
-            "DoB": tenant['dob'],
-            "phone": tenant['contact_details']['phone'],
-            "email": tenant['contact_details']['email'],
-            "address": tenant['contact_details']['address'],
+            "email": tenant['email'],
             "rentageType": tenant['tenancy_info']['type'],
+            "address": tenant['tenancy_info']['address'],
             "rentageFee": tenant['tenancy_info']['fees'],
             "rentagePaid": tenant['tenancy_info']['paid'],
             "datePaid": tenant['tenancy_info']['datePaid'],
             "rantageStarted": tenant['tenancy_info']['start'],
             "rantageExpires": tenant['tenancy_info']['expires'],
             "rentageArrears": tenant['tenancy_info']['arrears'],
-            "emergencyContactName": tenant['emergency_contact']['name'],
-            "emergencyContactPhone": tenant['emergency_contact']['phone'],
-            "emergencyContactAddress": tenant['emergency_contact']['address'],
             "role": tenant['role'],
             "leaseAgreementDetails": tenant['lease_agreement_details']
         } for tenant in tenants]
@@ -127,9 +110,10 @@ def get_all_tenants():
         return jsonify({"error": str(e)}), 500
 
 
-# Get a Specific Tenant Details
+# Get/fetch a Specific Tenant Details
 @tenant_bp.route('/api/admin/tenants/<tenant_id>', methods=['GET', 'OPTIONS'])
 def get_tenant(tenant_id):
+    """get specific tenant"""
     try:
         tenant = tenantsCollection.find_one(
             {"_id": ObjectId(tenant_id), "active": True}
@@ -139,23 +123,15 @@ def get_tenant(tenant_id):
                 "tenantId": str(tenant['_id']),
                 "dateCreated": tenant['date_created'],
                 "lastUpdated": tenant['date_updated'],
-                "fname": tenant['name']['fname'],
-                "lname": tenant['name']['lname'],
-                "sex": tenant['sex'],
-                "DoB": tenant['dob'],
-                "phone": tenant['contact_details']['phone'],
-                "email": tenant['contact_details']['email'],
-                "address": tenant['contact_details']['address'],
+                "email": tenant['email'],
                 "rentageType": tenant['tenancy_info']['type'],
+                "address": tenant['tenancy_info']['address'],
                 "rentageFee": tenant['tenancy_info']['fees'],
                 "rentagePaid": tenant['tenancy_info']['paid'],
                 "datePaid": tenant['tenancy_info']['datePaid'],
                 "rentageStarted": tenant['tenancy_info']['start'],
                 "rentageExpires": tenant['tenancy_info']['expires'],
                 "rentageArrears": tenant['tenancy_info']['arrears'],
-                "emergencyContactName": tenant['emergency_contact']['name'],
-                "emergencyContactPhone": tenant['emergency_contact']['phone'],
-                "emergencyContactAddress": tenant['emergency_contact']['address'],
                 "role": tenant['role'],
                 "active": tenant['active'],
                 "lease_agreement_details": tenant['lease_agreement_details']
@@ -171,42 +147,49 @@ def get_tenant(tenant_id):
 
 
 # Update Specific Tenant Details
-@tenant_bp.route('/api/admin/tenants/<tenant_id>', methods=['PUT', 'OPTIONS'])
+@tenant_bp.route('/api/admin/tenants/update/<tenant_id>', methods=['GET', 'PUT', 'OPTIONS'])
 # @jwt_required()
 def update_tenant(tenant_id):
     """Update a specific tenant with a tenant_id.
     Args:
         tenant_id (str): tenant unique id
     """
-    data = request.json
-    try:
-        update_data = {
-            "date_updated": data['lastUpdated'],
-            "name": data['name'],
-            "dob": data['DoB'],
-            "sex": data['sex'],
-            "contact_details": data['contactDetails'],
-            "emergency_contact": data['emergencyContact'],
-            "tenancy_info": data['tenancyInfo'],
-            "lease_agreement_details": data['leaseAgreementDetails'],
-            "role": data['role'],
-        }
-    except KeyError as e:
-        return jsonify({"error": f"Missing field {str(e)}"}), 400
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+    if request.method == 'GET':
+        user = tenantsCollection.find_one({"_id": ObjectId(tenant_id)})
+        print(user)
+        if user:
+            return jsonify({
+                "email": user['email'],
+                "tenancyInfo": user['tenancy_info'],
+                "leaseAgreementDetails": user['lease_agreement_details']
+            }), 200
+        return jsonify({"error": "Tenant not found"}), 404
 
-    try:
-        result = tenantsCollection.update_one(
-            {"_id": ObjectId(tenant_id)}, {"$set": update_data}
-        )
-        if result.matched_count == 0:
-            return jsonify({"msg": "Tenant not found"}), 404
-        return jsonify({"msg": "Tenant updated successfully"}), 200
-    except InvalidId:
-        return jsonify({"error": "Invalid tenant ID format"}), 400
-    except PyMongoError as e:
-        return jsonify({"error": str(e)}), 500
+    if request.method == 'PUT':
+        data = request.json
+        try:
+            update_data = {
+                # "date_updated": data['lastUpdated'],
+                "email": data['email'],
+                "tenancy_info": data['tenancyInfo'],
+                "lease_agreement_details": data['leaseAgreementDetails']
+            }
+        except KeyError as e:
+            return jsonify({"error": f"Missing field {str(e)}"}), 400
+        except Exception as e:
+            return jsonify({"error": str(e)}), 400
+
+        try:
+            result = tenantsCollection.update_one(
+                {"_id": ObjectId(tenant_id)}, {"$set": update_data}
+            )
+            if result.matched_count == 0:
+                return jsonify({"msg": "Tenant not found"}), 404
+            return jsonify({"msg": "Tenant updated successfully"}), 200
+        except InvalidId:
+            return jsonify({"error": "Invalid tenant ID format"}), 400
+        except PyMongoError as e:
+            return jsonify({"error": str(e)}), 500
 
 
 # Deactivate/Delete Tenant Account
@@ -230,13 +213,13 @@ def delete_tenant(tenant_id):
     except PyMongoError as e:
         return jsonify({"error": str(e)}), 500
 
-
+"""
 # Update Tenant Contact Information
 @tenant_bp.route(
     '/api/tenants/<tenant_id>/emergencycontacts', methods=['PUT', 'OPTIONS']
 )
 def update_tenant_contact(tenant_id):
-    """Update contact information for a specific tenant"""
+    '''Update contact information for a specific tenant'''
     data = request.json
     try:
         update_data = {
@@ -260,9 +243,9 @@ def update_tenant_contact(tenant_id):
         return jsonify({"error": "Invalid tenant ID format"}), 400
     except PyMongoError as e:
         return jsonify({"error": str(e)}), 500
+"""
 
-
-# Get Lease Agreements
+# Get Lease Agreements url
 @tenant_bp.route('/api/tenants/<tenant_id>/lease-agreements', methods=['GET', 'OPTIONS'])
 def get_lease_agreements(tenant_id):
     """Get lease agreements for a specific tenant"""

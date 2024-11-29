@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """All routes for tenant CRUD operations"""
 from flask import Blueprint, request, jsonify, url_for, current_app
-from flask_jwt_extended import create_access_token, jwt_required, set_access_cookies, unset_jwt_cookies, get_jwt
+from flask_jwt_extended import create_access_token, \
+    jwt_required, set_access_cookies, unset_jwt_cookies, get_jwt
 from flask_mail import Message
 from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
@@ -17,19 +18,21 @@ mail = current_app.mail
 tenantsCollection = current_app.tenantsCollection
 adminsCollection = current_app.adminsCollection
 
+
 # function to authenticate
 def authenticate(email, password, role):
     """to authenticate the user"""
     if role == 'admin':
-        user = adminsCollection.find_one({"contact_details.email": email})
+        user = adminsCollection.find_one({"email": email})
     elif role == 'tenant':
-        user = tenantsCollection.find_one({"contact_details.email": email})
+        user = tenantsCollection.find_one({"email": email})
     else:
         return None
-    
+
     if user and check_password_hash(user["password"], password):
         return user
     return None
+
 
 # function to verify reset token
 def verify_reset_token(token, expiration=259200):
@@ -40,6 +43,7 @@ def verify_reset_token(token, expiration=259200):
     except Exception as e:
         return None
     return email
+
 
 @auth_bp.route('/api/login', methods=['POST', 'OPTIONS'])
 def login():
@@ -52,20 +56,26 @@ def login():
     password = data.get('password')
     role = data.get('role')
     remember_me = data.get('remember_me', False)
-    
+
     if not email or not password or not role:
         return jsonify({"error": "Missing email, password, or role"}), 400
-    
+
     user = authenticate(email, password, role)
-    
+
     if not user:
         return jsonify({"error": "Invalid email, password, or role"}), 401
-    
+
     if user['role'] == 'tenant' and not user.get('active', False):
         return jsonify({"error": "Account is not active, contact admin"}), 403
-    
-    expires = datetime.timedelta(days=7) if remember_me else datetime.timedelta(hours=1)
-    access_token = create_access_token(identity={"email": email, "role": role, "id": str(user["_id"])}, expires_delta=expires)
+
+    expires = datetime.timedelta(
+        days=7
+    ) if remember_me else datetime.timedelta(hours=1)
+
+    access_token = create_access_token(
+        identity={"email": email, "role": role, "id": str(user["_id"])},
+        expires_delta=expires
+    )
     response = jsonify(msg="Login successful")
     set_access_cookies(response, access_token)
 
@@ -82,11 +92,14 @@ def forgot_password():
 
     if not email:
         return jsonify({"error": "Missing email"}), 400
-    
-    user = tenantsCollection.find_one({"contact_details.email": email}) or adminsCollection.find_one({"contact_details.email": email})
+
+    user = tenantsCollection.find_one(
+        {"email": email}
+    ) or adminsCollection.find_one({"email": email})
+
     if not user:
         return jsonify({"error": "Email not found or wrong email"}), 404
-    
+
     token = generate_reset_token(email)
     reset_url = f"{current_app.config['FRONTEND_URL']}/reset_password/{token}"
 
@@ -107,6 +120,7 @@ def forgot_password():
         logger.error(f"Failed to send email: {str(e)}")
         return jsonify({"error": f"Failed to send email: {str(e)}"}), 500
 
+
 @auth_bp.route('/api/reset_password/<token>', methods=['POST', 'OPTIONS'])
 def reset_password(token):
     if not request.is_json:
@@ -117,7 +131,9 @@ def reset_password(token):
     confirm_password = data.get('confirmPassword')
 
     if not new_password or not confirm_password:
-        return jsonify({"error": "Missing new password or confirm password"}), 400
+        return jsonify(
+            {"error": "Missing new password or confirm password"}
+        ), 400
 
     if new_password != confirm_password:
         return jsonify({"error": "Passwords do not match"}), 400
@@ -126,10 +142,13 @@ def reset_password(token):
     if not email:
         return jsonify({"error": "Invalid or expired token"}), 400
 
-    user = tenantsCollection.find_one({"contact_details.email": email}) or adminsCollection.find_one({"contact_details.email": email})
+    user = tenantsCollection.find_one(
+        {"email": email}
+    ) or adminsCollection.find_one(
+        {"email": email}
+    )
     if not user:
         return jsonify({"error": "User not found"}), 404
-    
     new_hashed_password = generate_password_hash(new_password)
     user_role = user.get('role')  # check user role
 
@@ -138,18 +157,32 @@ def reset_password(token):
     if user_role not in ['tenant', 'admin']:
         return jsonify({"error": "Invalid user role"}), 400
 
-    collection = tenantsCollection if user.get('role') == 'tenant' else adminsCollection
+    collection = tenantsCollection if user.get(
+        'role'
+    ) == 'tenant' else adminsCollection
+
     result = collection.update_one(
-            {"contact_details.email": email},
-            {"$set": {"password": new_hashed_password}}
-            )
+        {"email": email},
+        {"$set": {"password": new_hashed_password}}
+    )
 
     if result.modified_count == 1:
-        return jsonify({"msg": "Password has been reset"}), 200
         logger.debug("Password updated successfully")
+        return jsonify(
+            {
+                "msg": "Password has been reset",
+                "email": email,
+                "role": user.get('role'),
+                "tenantId": str(user.get('_id')),
+                "address": user.get(
+                    'tenancy_info', 'No, in estate'
+                ).get(
+                    'address', 'No, in estate'
+                )
+            }), 200
     else:
-        return jsonify({"error": "Password reset failed, try again"}), 400
         logger.debug("Password update failed")
+        return jsonify({"error": "Password reset failed, try again"}), 400
 
 
 @auth_bp.route('/api/logout', methods=['POST'])

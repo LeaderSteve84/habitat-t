@@ -2,7 +2,8 @@
 """routes package init"""
 from flask import Blueprint
 from app.routes import tenant, auth, admin_message, \
-    property, listing, log_request, admin, communication,profile
+    property, listing, log_request, admin, communication, \
+    profile
 
 bp = Blueprint('main', __name__)
 

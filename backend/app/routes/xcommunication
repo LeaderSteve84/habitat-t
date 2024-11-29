@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+"""Communication routes module"""
+from flask import Blueprint, request, jsonify, current_app
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request, decode_token
+from datetime import datetime
+from bson import ObjectId
+# from app import socketio
+from app.models.communication import CommunicationModel
+from flask_socketio import emit
+
+communication_bp = Blueprint('communication', __name__)
+
+tenantsCollection = current_app.tenantsCollection
+adminsCollection = current_app.adminsCollection
+messagesCollection = current_app.messagesCollection
+socketio = current_app.socketio
+logger = current_app.logger
+
+communication_model = CommunicationModel(messagesCollection)
+
+def convert_objectid(obj):
+    """Recursively convert ObjectIds to strings in a given object."""
+    if isinstance(obj, list):
+        return [convert_objectid(item) for item in obj]
+    elif isinstance(obj, dict):
+        return {key: convert_objectid(value) for key, value in obj.items()}
+    elif isinstance(obj, ObjectId):
+        return str(obj)
+    else:
+        return obj
+
+def get_current_user(identity):
+    """to authenticate the user"""
+    collection = adminsCollection if identity['role'] == 'admin' else tenantsCollection
+    return collection.find_one({"contact_details.email": identity['email']})
+
+@communication_bp.route('/api/messages', methods=['GET', 'OPTIONS'])
+@jwt_required()
+def get_messages():
+    page = int(request.args.get('page', 1))
+    limit = int(request.args.get('limit', 50))
+    skip = (page - 1) * limit
+    messages = list(messagesCollection.find().skip(skip).limit(limit))
+    messages = convert_objectid(messages)  # Convert ObjectId to string
+    return jsonify(messages), 200
+
+from datetime import datetime
+
+# @communication_bp.route('/api/send_message', methods=['POST', 'OPTIONS'])
+@socketio.on('receive_message', namespace="/chat")
+def handle_receive_message(data, ack_callback=None):
+    try:
+        # Manually verify JWT in the WebSocket request
+        """
+        print(data)
+        token = data.get('token')
+        if not token:
+            logger.info("Missing JWT token in payload")
+            if ack_callback:
+                ack_callback({"status": "error", "msg": "Missing JWT token"})
+            return
+
+        decoded_token = decode_token(token)
+        print(decoded_token)
+        
+        identity = decoded_token.get('sub')
+        
+        print(f"Identity: {identity}")  # Debug print
+
+        if not ('email' in identity or 'role' in identity):
+            logger.info("Invalid token data")
+            if ack_callback:
+                ack_callback({"status": "error", "msg": "Invalid token data"})
+            return
+        """
+        # Fetch the user
+        user = get_current_user({'role': 'tenant', 'email': 'mailstephenreal@gmail.com'})
+        if not user:
+            logger.info("User not found")
+            if ack_callback:
+                ack_callback({"status": "error", "msg": "User not found"})
+            return
+
+        # extract the message
+        message = data.get('message')
+        if not message:
+            logger.info("Invalid data")
+            if ack_callback:
+                ack_callback({"status": "error", "msg": "Invalid data"})
+            return
+
+        print(f"message received via socket: {message}")
+
+        # Format the timestamp
+        timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+        full_name = f"{user['name'].get('fname', '')} {user['name'].get('lname', '')}".strip()
+        full_name = full_name if full_name else "Anonymous"
+
+        # Construct the message object
+        msg = {
+            'name': full_name,
+            'message': message,
+            'timestamp': timestamp
+        }
+
+        # Add message to the collection and convert the ObjectId to string
+        inserted_id = communication_model.add_message(msg)
+        msg['_id'] = str(inserted_id)  # Ensure the _id is a string
+
+        # Emit the message to all connected client
+        socketio.emit('receive_message', msg, namespace="/chat", to=None)
+            
+        # Acknowledgement the sender
+        if ack_callback:
+            ack_callback({"status": "success", "msg": "Message delivered", "message": msg})
+    except Exception as e:
+        logger.info(f"Error: {e}")
+        if ack_callback:
+            ack_callback({"status": "error", "msg": "An error occurred", "details": str(e)})
