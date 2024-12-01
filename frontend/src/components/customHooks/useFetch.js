@@ -6,6 +6,7 @@ const useFetch = (URL) => {
   const [data, setData] = useState([]);
   const [error, setError] = useState(null);
   const [isPending, setIsPending] = useState(true);
+  const baseUrl = "http://localhost:5000";
         
   useEffect(() => {
 
@@ -17,10 +18,20 @@ const useFetch = (URL) => {
 
         try {
 
-          const response = await axios.get(URL, { signal: abortCont.signal });
-          setData(response.data);
-          setIsPending(false);
-          setError(null);
+          const response = await axios.get(`${baseUrl}${URL}`, {
+            signal: abortCont.signal,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          if (response.status === 200) {
+            setData(response.data);
+            setError(null);
+            setIsPending(false);
+          } else {
+            setError(null);
+            setIsPending(false);
+          }
 
         } catch (error) {
 
@@ -28,21 +39,24 @@ const useFetch = (URL) => {
             console.log("fetch aborted");
 
           } else {
-
-          const errorMessage = "Error fetching data from server.";
-          setIsPending(false);
-          console.error(error.response?.data?.error)
-          setError({ error: errorMessage });
+            const errorMessage = "Error fetching data from server.";
+            if (isPending) {
+              console.error(error.response?.data?.error)
+              setIsPending(false);
+            } else {
+              const err = error.response?.data?.error || errorMessage;
+              setError({ error: err });
+            }
           }
         }
       }
       fetchData();
             
-    }, 500);
+    }, 200);
 
     return () => abortCont.abort();
 
-  }, [URL]);
+  }, [URL, isPending]);
 
   return { data, isPending, error };
 }

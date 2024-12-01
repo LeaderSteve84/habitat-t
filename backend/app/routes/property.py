@@ -54,6 +54,7 @@ def get_all_properties():
         properties_list = [{
             "propertyId": str(property['_id']),
             "dateCreated": property['date_created'],
+            "tenantId": str(property.get('tenant_id', '')),
             "address": property['address'],
             "type": property['type'],
             "unitAvailability": property['unit_availability'],
@@ -77,6 +78,7 @@ def get_specific_property(property_id):
             return jsonify({
                 "propertyId": str(property['_id']),
                 "dateCreated": property['date_created'],
+                "tenantId": property.get('tenant_id', ''),
                 "address": property['address'],
                 "type": property['type'],
                 "unitAvailability": property['unit_availability'],
@@ -130,28 +132,32 @@ def update_unit_availability(property_id):
 
     try:
         # Extract and validate unitAvailability from request data
-        unit_availability = data.get('unitAvailability')
-        if unit_availability is None:
-            return jsonify({"error": "unitAvailability field is required"}), 400
+        tenant_id = data.get('tenantId', "")
+        current_app.logger.info(tenant_id)
+        tenId = ObjectId(tenant_id) if tenant_id else tenant_id
+        update_data = {
+            "unit_availability": data.get('unitAvailability'),
+            "tenant_id": tenId
+        }
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
     try:
         # Perform the update in the database
         result = propertiesCollection.update_one(
-          {"_id": ObjectId(property_id)}, {"$set": {"unit_availability": unit_availability}}
+          {"_id": ObjectId(property_id)}, {"$set": update_data}
         )
         if result.matched_count == 0:
             return jsonify({"msg": "Property not found"}), 404
 
-        return jsonify({"msg": "unitAvailability updated successfully"}), 200
+        return jsonify({"msg": "unitAvailability and tenantId updated successfully"}), 200
     except InvalidId:
         return jsonify({"error": "Invalid property format"}), 404
     except PyMongoError as e:
         return jsonify({"error": str(e)}), 500
 
 
-# Delete Property
+# Delete A Specific Property
 @property_bp.route('/api/admin/properties/<property_id>', methods=['DELETE', 'OPTIONS'])
 def delete_property(property_id):
     """Delete a specific property by ID."""

@@ -1,20 +1,17 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const AdmitTenant = () => {
 
   const navigate = useNavigate();
+  const { id, type, address, fees } = useParams();
 
   const [formData, setFormData] = useState({
-    name: {fname: '', lname: ''},
-    DoB: '',
-    sex: 'Male',
-    contactDetails: { email: '', phone: '', address: '' },
-    emergencyContact: { name: '', phone: '', address: '' },
-    tenancyInfo: { type: '', fees: '', paid: '', datePaid: '', start: '', expires: '', arrears: '' },
-    leaseAgreementDetails: '',
-    role: '',
+    propertyId: `${id}`,
+    email: '',
+    tenancyInfo: { type: `${type}`, address: `${address}`, fees: `${fees}`, paid: '', datePaid: '', start: '', expires: '', arrears: '' },
+    leaseAgreementDetails: ''
   });
 
   const autoGeneratePassword = () => {
@@ -66,14 +63,23 @@ const AdmitTenant = () => {
         }, 
         password: autoGeneratePassword(), 
         role: "tenant",
-        DoB: formatDate(formData.DoB)
       };
       const response = await axios.post("/api/admin/tenants", data);
-      const { msg } = response.data;
+      const { msg, tenantId } = response.data;
       setMessage({
         msg: msg?.toString()
       });
-      navigate("/AdminDashboard/ViewTenants");
+      const resp = await axios.put(`/api/admin/properties/${id}/availability`, {unitAvailability: "false", tenantId: `${tenantId}`} );
+      setTimeout(() => {
+        const { amsg } = resp.data;
+        setMessage({
+          amsg: amsg?.toString()
+        });
+      }, 500);
+      
+      setTimeout(() => {
+        navigate("/admin_dashboard/view_tenants");
+      }, 500);
 
     } catch (error) {
       const errorMessage = error.response?.data?.error || "Error admitting tenant";
@@ -87,94 +93,45 @@ const AdmitTenant = () => {
       <div className="col-md-9">
       <div className="card shadow-lg">
       <div className="card-body">
-      <h2 className="card-title text-center mb-4">Admit Tenant</h2>
+      <h2 className="card-title text-center mb-4">Admit Tenant/Client</h2>
       { message && (
         <div>
            { message.msg && <p className="alert alert-info">{ message.msg }</p> }
            { message.error && <p className="alert alert-danger">{ message.error }</p> }
+           { message.amsg && <p className="alert alert-info">{ message.amsg }</p> }
         </div>
       )}
       <form onSubmit={handleSubmit}>
           <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">First Name:</label>
+             <label className="col-sm-2 col-form-label">Property Id:</label>
              <div className="col-sm-10">
-               <input type="text" className="form-control" name="name.fname" value={formData.name.fname} required onChange={handleChange} />
+                 <input type="text" className="form-control" name="propertyId" value={formData.propertyId} required readOnly />
              </div>
           </div>
-	  <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Last Name:</label>
-             <div className="col-sm-10">
-               <input type="text" className="form-control" name="name.lname" value={formData.name.lname} required onChange={handleChange} />
-             </div>
-          </div>
-	  <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Date of Birth:</label>
-             <div className="col-sm-10">
-                <input type="date" className="form-control" name="DoB" value={formData.DoB} required onChange={handleChange} />
-             </div>
-          </div>
-	  <fieldset className="mb-3">
-             <legend>Sex</legend>
-	     <div className="form-check form-check-inline">
-             	 <input type="radio" className="form-check-input" name="sex" value="Male" checked={formData.sex === 'Male'} onChange={handleChange} />
-		 <label className="form-check-label">Male</label>
-             </div>
- 	     <div className="form-check form-check-inline">
-                 <input type="radio" className="form-check-input" name="sex" value="Female" checked={formData.sex === 'Female'} onChange={handleChange} />
-                 <label>Female</label>
-             </div>
-          </fieldset>
-	     
-          <h4>Contact Details</h4>          
 	  <div className="mb-3 row">
              <label className="col-sm-2 col-form-label">Email:</label>
              <div className="col-sm-10">
-             	 <input type="email" className="form-control" name="contactDetails.email" value={formData.contactDetails.email} required onChange={handleChange} />
+             	 <input type="email" className="form-control" name="email" value={formData.email} required onChange={handleChange} />
              </div>
           </div>
-          <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Phone:</label>
+          <h4 className="h5 fw-bold">Tenancy Information</h4>
+          <div className="border p-3">
+	  <div className="mb-3 row">
+             <label className="col-sm-2 col-form-label">Type:</label>
              <div className="col-sm-10">
-                 <input type="tel" className="form-control" name="contactDetails.phone" value={formData.contactDetails.phone} required onChange={handleChange} />
+                 <input type="text" className="form-control" name="tenancyInfo.type" value={formData.tenancyInfo.type} required readOnly />
              </div>
           </div>
 	  <div className="mb-3 row">
              <label className="col-sm-2 col-form-label">Address:</label>
              <div className="col-sm-10">
-                 <input type="text" className="form-control" name="contactDetails.address" value={formData.contactDetails.address} required onChange={handleChange} />
-             </div>
-	  </div>
-             
-          <h4>Emergency Contact Details</h4>
-           <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Name:</label>
-             <div className="col-sm-10">
-                 <input type="text" className="form-control" name="emergencyContact.name" value={formData.emergencyContact.name} required onChange={handleChange} />
-             </div>
-           </div>
-           <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Phone:</label>
-             <div className="col-sm-10">
-                 <input type="tel" className="form-control" name="emergencyContact.phone" value={formData.emergencyContact.phone} required onChange={handleChange} />
-             </div>
-           </div>
-           <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Address:</label>
-             <div className="col-sm-10">
-                 <input type="text" className="form-control" name="emergencyContact.address" value={formData.emergencyContact.address} required onChange={handleChange} />
-             </div>   
-           </div>                                                                                                                                                       
-             
-          <h4>Tenancy Information</h4>
-	  <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Type:</label>                                                                                                        <div className="col-sm-10">
-                 <input type="text" className="form-control" name="tenancyInfo.type" value={formData.tenancyInfo.type} required onChange={handleChange} />
+                 <input type="text" className="form-control" name="tenancyInfo.address" value={formData.tenancyInfo.address} required readOnly />
              </div>
           </div>
           <div className="mb-3 row">
              <label className="col-sm-2 col-form-label">Fees:</label>
              <div className="col-sm-10">
-                 <input type="number" className="form-control" name="tenancyInfo.fees" value={formData.tenancyInfo.fees} required onChange={handleChange} />
+                 <input type="number" className="form-control" name="tenancyInfo.fees" value={formData.tenancyInfo.fees} required readOnly />
              </div>
           </div>
           <div className="mb-3 row">
@@ -207,9 +164,10 @@ const AdmitTenant = () => {
                  <input type="number" className="form-control" name="tenancyInfo.arrears" value={formData.tenancyInfo.arrears} required onChange={handleChange} />
              </div>
           </div>
+          </div>
                 
           <div className="mb-3 row">
-             <label className="col-sm-5 col-form-label">Lease Agreement:</label>
+             <label className="col-sm-5 col-form-label fw-bold h5">Lease Agreement:</label>
 	     <select className="form-select" name="leaseAgreementDetails" value={formData.leaseAgreementDetails} required onChange={handleChange}>
 		 <option value="">Select Lease Agreement</option>
 		 <option value="https://3bedroomduplexurllink.example">Three (3) Bedrooms Duplex</option>
@@ -218,7 +176,7 @@ const AdmitTenant = () => {
 		 <option value="https://shopurllink.example">Commercial Fascility</option>
              </select>
 	  </div>
-          <button type="submit" className="btn btn-primary mb-3 w-100">Admit Tenant</button>
+          <button type="submit" className="btn btn-primary mb-3 w-100">Admit Tenant/Client</button>
       </form>
       </div>
       </div>

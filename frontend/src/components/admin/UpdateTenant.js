@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from "react-router-dom";
 import useFetch from "../customHooks/useFetch";
@@ -10,32 +10,25 @@ const UpdateTenant = () => {
 
   const [message, setMessage] = useState(null);
 
-  //const [formData, setFormData] = useState({});
-
   const [formData, setFormData] = useState({
-    name: {fname: '', lname: ''},
-    DoB: '',
-    sex: 'Male',
-    contactDetails: { email: '', phone: '', address: '' },
-    emergencyContact: { name: '', phone: '', address: '' },
-    tenancyInfo: { type: '', fees: '', paid: '', datePaid: '', start: '', expires: '', arrears: '' },
-    leaseAgreementDetails: '',
-    role: ''
+    email: '',
+    tenancyInfo: { type: '', address: '', fees: '', paid: '', datePaid: '', start: '', expires: '', arrears: '' },
+    leaseAgreementDetails: ''
   });
-        
-    const URL = `http://localhost:5000/api/admin/tenants/${id}`;
-    const { data: tenant, isPending, error } = useFetch(URL);
+  
+    
+  const endpoint = `/api/admin/tenants/update/${id}`;
+  const { data: tenant, isPending, error } = useFetch(endpoint);
 
-  setTimeout(() => {
+  useEffect(() => {
     if (tenant) {
-      setFormData({ ...formData, tenant });
+      setFormData({
+        email: tenant.email,
+        tenancyInfo: tenant.tenancyInfo || { type: '', address: '', fees: '', paid: '', datePaid: '', start: '', expires: '', arrears: '' },
+        leaseAgreementDetails: tenant.leaseAgreementDetails || ''
+      });
     }
-  }, 1000);
-
-  //const autoGeneratePassword = () => {
-    // Generate a random password function
-   // return Math.random().toString(36).slice(-8);
-  // };
+  }, [tenant]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,8 +57,6 @@ const UpdateTenant = () => {
 
     return [year, month, day].join('-');
   };
-
-  //const [message, setMessage] = useState(null);
     
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,17 +69,14 @@ const UpdateTenant = () => {
 	  datePaid: formatDate(formData.tenancyInfo.datePaid),
 	  start: formatDate(formData.tenancyInfo.start),
 	  expires: formatDate(formData.tenancyInfo.expires)
-        }, 
-        // password: autoGeneratePassword(), 
-        //role: "tenant",
-        DoB: formatDate(formData.DoB)
+        } 
       };
-      const response = await axios.post(`/api/admin/tenants/${id}`, data);
+      const response = await axios.put(`/api/admin/tenants/update/${id}`, data);
       const { msg } = response.data;
       setMessage({
         msg: msg?.toString()
       });
-      navigate("/AdminDashboard/ViewTenants");
+      navigate("/admin_dashboard/view_tenants");
 
     } catch (error) {
       const errorMessage = error.response?.data?.error || "Error updating tenant";
@@ -112,82 +100,27 @@ const UpdateTenant = () => {
         </div>
       )}
       <form onSubmit={handleSubmit}>
-          <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">First Name:</label>
-             <div className="col-sm-10">
-               <input type="text" className="form-control" name="name.fname" value={formData.name.fname} required onChange={handleChange} />
-             </div>
-          </div>
-	  <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Last Name:</label>
-             <div className="col-sm-10">
-               <input type="text" className="form-control" name="name.lname" value={formData.name.lname} required onChange={handleChange} />
-             </div>
-          </div>
-	  <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Date of Birth:</label>
-             <div className="col-sm-10">
-                <input type="date" className="form-control" name="DoB" value={formData.DoB} required onChange={handleChange} />
-             </div>
-          </div>
-	  <fieldset className="mb-3">
-             <legend>Sex</legend>
-	     <div className="form-check form-check-inline">
-             	 <input type="radio" className="form-check-input" name="sex" value="Male" checked={formData.sex === 'Male'} onChange={handleChange} />
-		 <label className="form-check-label">Male</label>
-             </div>
- 	     <div className="form-check form-check-inline">
-                 <input type="radio" className="form-check-input" name="sex" value="Female" checked={formData.sex === 'Female'} onChange={handleChange} />
-                 <label>Female</label>
-             </div>
-          </fieldset>
-	     
           <h4>Contact Details</h4>          
 	  <div className="mb-3 row">
              <label className="col-sm-2 col-form-label">Email:</label>
              <div className="col-sm-10">
-             	 <input type="email" className="form-control" name="contactDetails.email" value={formData.contactDetails.email} required onChange={handleChange} />
+             	 <input type="email" className="form-control" name="email" value={formData.email} required readOnly/>
              </div>
           </div>
-          <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Phone:</label>
-             <div className="col-sm-10">
-                 <input type="tel" className="form-control" name="contactDetails.phone" value={formData.contactDetails.phone} required onChange={handleChange} />
-             </div>
-          </div>
-	  <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Address:</label>
-             <div className="col-sm-10">
-                 <input type="text" className="form-control" name="contactDetails.address" value={formData.contactDetails.address} required onChange={handleChange} />
-             </div>
-	  </div>
-             
-          <h4>Emergency Contact Details</h4>
-           <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Name:</label>
-             <div className="col-sm-10">
-                 <input type="text" className="form-control" name="emergencyContact.name" value={formData.emergencyContact.name} required onChange={handleChange} />
-             </div>
-           </div>
-           <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Phone:</label>
-             <div className="col-sm-10">
-                 <input type="tel" className="form-control" name="emergencyContact.phone" value={formData.emergencyContact.phone} required onChange={handleChange} />
-             </div>
-           </div>
-           <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Address:</label>
-             <div className="col-sm-10">
-                 <input type="text" className="form-control" name="emergencyContact.address" value={formData.emergencyContact.address} required onChange={handleChange} />
-             </div>   
-           </div>                                                                                                                                                       
              
           <h4>Tenancy Information</h4>
 	  <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Type:</label>                                                                                                        <div className="col-sm-10">
+             <label className="col-sm-2 col-form-label">Type:</label>
+	     <div className="col-sm-10">
                  <input type="text" className="form-control" name="tenancyInfo.type" value={formData.tenancyInfo.type} required onChange={handleChange} />
              </div>
           </div>
+          <div className="mb-3 row">
+             <label className="col-sm-2 col-form-label">Address:</label>
+             <div className="col-sm-10">
+                 <input type="text" className="form-control" name="tenancyInfo.address" value={formData.tenancyInfo.address} required onChange={handleChange} />
+            </div>
+          </div> 
           <div className="mb-3 row">
              <label className="col-sm-2 col-form-label">Fees:</label>
              <div className="col-sm-10">
@@ -235,7 +168,7 @@ const UpdateTenant = () => {
 		 <option value="https://shopurllink.example">Commercial Fascility</option>
              </select>
 	  </div>
-          <button type="submit" className="btn btn-primary mb-3 w-100">Admit Tenant</button>
+          <button type="submit" className="btn btn-primary mb-3 w-100">Update Tenant</button>
       </form>
       </div>
       </div>

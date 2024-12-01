@@ -9,7 +9,7 @@ import propertyManagerImage from "../../assets/propertymanager.png";
 import accountManagementImage from "../../assets/accountmgr.webp";
 import centralCommunicationImage from "../../assets/centralize.jpeg";
 import { Link } from "react-router-dom";
-import { Nav } from 'react-bootstrap';
+// import { Nav } from 'react-bootstrap';
 
 const features = [
     {

@@ -41,14 +41,14 @@ function TenantNavBar() {
         </Offcanvas.Header>
         <Offcanvas.Body>
 	   <nav className="nav flex-column">
-                    <Link className="nav-link" as={Link} to="/TenantDashboard">Dashboard</Link>
-                    <Link className="nav-link" as={Link} to="/TenantDashboard/Chat">Chat Room</Link>
-                    <Link className="nav-link" as={Link} to="/TenantDashboard/LogRequest">Log Request</Link>
-                    <Link className="nav-link" as={Link} to="/TenantDashboard/ViewMyLogRequests">My Logged Requests</Link>
-                    <Link className="nav-link" as={Link} to="/TenantDashboard/UpdateProfile">Update Profile</Link>
-                    <Link className="nav-link" as={Link} to="/TenantDashboard/UploadDocument">Upload Document</Link>
-                    <Link className="nav-link" as={Link} to="/TenantDashboard/ChangePassword">Change Password</Link>
-                    <Link className="nav-link" as={Link} to="/TenantDashboard/Logout">Logout</Link>
+                    <Link className="nav-link" as={Link} to="/tenant_dashboard">Dashboard</Link>
+                    <Link className="nav-link" as={Link} to="/tenant_dashboard/chat">Chat Room</Link>
+                    <Link className="nav-link" as={Link} to="/tenant_dashboard/log_request">Log Request</Link>
+                    <Link className="nav-link" as={Link} to="/tenant_dashboard/view_my_log_requests">My Logged Requests</Link>
+                    <Link className="nav-link" as={Link} to="/tenant_dashboard/update_profile">Update Profile</Link>
+                    <Link className="nav-link" as={Link} to="/tenant_dashboard/upload_document">Upload Document</Link>
+                    <Link className="nav-link" as={Link} to="/tenant_dashboard/change_password">Change Password</Link>
+                    <Link className="nav-link" as={Link} to="/tenant_dashboard/logout">Logout</Link>
            </nav>
         </Offcanvas.Body>
       </Offcanvas>

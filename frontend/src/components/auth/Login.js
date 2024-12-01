@@ -21,7 +21,7 @@ export default function Login() {
             });
             const { msg } = response.data;
             setMessage({msg: msg?.toString()});
-            navigate('/TenantDashboard');
+            navigate('/tenant_dashboard');
 
         } catch (error) {
             setMessage({ error: error.response?.data?.error || "Login failed. Please try again." });
@@ -53,7 +53,7 @@ export default function Login() {
                        <div className="mb-3">
                           <label htmlFor="role" className="form-label">Role</label>
                           <select className="form-select" id="role" value={role} onChange={(e) => setRole(e.target.value)} required >
-                             <option value="tenant">Tenant</option>
+                             <option value="tenant">User</option>
                              <option value="admin">Admin</option>
                           </select>
                        </div>

@@ -41,22 +41,20 @@ function AdminNavBar() {
         </Offcanvas.Header>
         <Offcanvas.Body>
 	   <nav className="nav flex-column">
-                    <Link className="nav-link" as={Link} to="/AdminDashboard">Dashboard</Link>
-                    <Link className="nav-link" as={Link} to="/AdminDashboard/Chat">Chat Room</Link>
-                    <Link className="nav-link" as={Link} to="/AdminDashboard/AdmitTenant">Admit Tenant</Link>
-                    <Link className="nav-link" as={Link} to="/AdminDashboard/ViewTenants">View All Tenants</Link>
-                    <Link className="nav-link" as={Link} to="/AdminDashboard/AddProperty">Property Entry</Link>
-                    <Link className="nav-link" as={Link} to="/AdminDashboard/ViewProperties">View All Properties</Link>
-                    <Link className="nav-link" as={Link} to="/AdminDashboard/ListProperty">List Properties</Link>
-                    <Link className="nav-link" as={Link} to="/AdminDashboard/ListedProperties">View Listed Properties</Link>
-                    <Link className="nav-link" as={Link} to="/AdminDashboard/CreateAnnouncement">Create Announcement</Link>
-                    <Link className="nav-link" as={Link} to="/AdminDashboard/ViewAnnouncements">View All Announcement</Link>
-                    <Link className="nav-link" as={Link} to="/AdminDashboard/LogRequest">Log Request</Link>
-		    <Link className="nav-link" as={Link} to="/AdminDashboard/ViewMyLogRequests">My Logged Requests</Link>
-                    <Link className="nav-link" as={Link} to="/AdminDashboard/ViewAllLogRequests">View All Logged Requests</Link>
-                    <Link className="nav-link" as={Link} to="/AdminDashboard/UploadDocument">Upload Document</Link>
-                    <Link className="nav-link" as={Link} to="/AdminDashboard/ChangePassword">Change Password</Link>
-		    <Link className="nav-link" as={Link} to="/AdminDashboard/logout">Logout</Link>
+                    <Link className="nav-link" as={Link} to="/admin_dashboard">Dashboard</Link>
+                    <Link className="nav-link" as={Link} to="/admin_dashboard/chat">Chat Room</Link>
+                    <Link className="nav-link" as={Link} to="/admin_dashboard/add_property">Property Entry</Link>
+                    <Link className="nav-link" as={Link} to="/admin_dashboard/view_properties">View All Properties</Link>
+                    <Link className="nav-link" as={Link} to="/admin_dashboard/view_tenants">View All Tenants/Clients</Link>
+                    <Link className="nav-link" as={Link} to="/admin_dashboard/listed_properties">View Listed Properties</Link>
+                    <Link className="nav-link" as={Link} to="/admin_dashboard/create_announcement">Create Announcement</Link>
+                    <Link className="nav-link" as={Link} to="/admin_dashboard/view_announcements">View All Announcement</Link>
+                    <Link className="nav-link" as={Link} to="/admin_dashboard/log_request">Log Request</Link>
+		    <Link className="nav-link" as={Link} to="/admin_dashboard/view_my_log_requests">My Logged Requests</Link>
+                    <Link className="nav-link" as={Link} to="/admin_dashboard/view_all_log_requests">View All Logged Requests</Link>
+                    <Link className="nav-link" as={Link} to="/admin_dashboard/upload_document">Upload Document</Link>
+                    <Link className="nav-link" as={Link} to="/admin_dashboard/change_password">Change Password</Link>
+		    <Link className="nav-link" as={Link} to="/admin_dashboard/logout">Logout</Link>
            </nav>
         </Offcanvas.Body>
       </Offcanvas>

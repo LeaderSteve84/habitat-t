@@ -13,17 +13,22 @@ import AdmitTenant from "./components/admin/AdmitTenant";
 import ViewTenants from "./components/admin/ViewTenants";
 import AddProperty from "./components/admin/AddProperty";
 import ViewProperties from "./components/admin/ViewProperties";
+import UpdateProperty from "./components/admin/UpdateProperty";
 import ListProperty from "./components/admin/ListProperty";
 import ListedProperties from "./components/admin/ListedProperties";
 import CreateAnnouncement from "./components/admin/CreateAnnouncement";
 import ViewAnnouncements from "./components/admin/ViewAnnouncements";
 import TenantDetails from "./components/admin/TenantDetails";
 import UpdateTenant from "./components/admin/UpdateTenant";
+import ViewTenantProfile from "./components/admin/ViewTenantProfile";
+import UpdateTenantProfile from "./components/admin/UpdateTenantProfile";
 
 // import from tenant directory
 import TenantNavBar from "./components/tenant/TenantNavBar";
 import TenantDashboard from "./components/tenant/TenantDashboard";
+import TenantProfile from "./components/tenant/TenantProfile";
 import UpdateProfile from "./components/tenant/UpdateProfile";
+import LeaseAgreement from "./components/tenant/LeaseAgreement";
 
 // import from chat
 import Chat from "./components/chat/Chat";
@@ -52,37 +57,43 @@ const router = createBrowserRouter(
           <Route path="contact" element={<Contact />} />
           <Route path="login" element={<Login />} />
           <Route path="reset_password/:token" element={<ResetPassword />} />
+          <Route path="tenant_profile/:email/:tenantId/:address" element={<TenantProfile />} />
+          <Route path="lease_agreement/:id" element={<LeaseAgreement />} />
           <Route path="forgot_password" element={<ForgotPassword />} />
     </Route>
-    <Route path="AdminDashboard" element={<AdminNavBar />}>
+    <Route path="admin_dashboard" element={<AdminNavBar />}>
           <Route index element={<AdminDashboard />} />
-          <Route path="Chat" element={<Chat />} />
-          <Route path="AdmitTenant" element={<AdmitTenant />} />
-          <Route path="ViewTenants" element={<ViewTenants />} />
-          <Route path="TenantDetails/:id" element={<TenantDetails />} />
-          <Route path="UpdateTenant/:id" element={<UpdateTenant />} />
-          <Route path="AddProperty" element={<AddProperty />} />
-          <Route path="ViewProperties" element={<ViewProperties />} />
-          <Route path="ListProperty" element={<ListProperty />} />
-          <Route path="ListedProperties" element={<ListedProperties />} />
-          <Route path="CreateAnnouncement" element={<CreateAnnouncement />} />
-          <Route path="ViewAnnouncements" element={<ViewAnnouncements />} />
-	  <Route path="LogRequest" element={<LogRequest />} />
-          <Route path="ViewMyLogRequests" element={<ViewMyLogRequests />} />
-          <Route path="ViewAllLogRequests" element={<ViewAllLogRequests />} />
-    	  <Route path="UploadDocument" element={<UploadDocument />} />
-          <Route path="ChangePassword" element={<ChangePassword />} />
-          <Route path="Logout" element={<Logout />} />
+          <Route path="chat" element={<Chat />} />
+          <Route path="admit_tenant/:id/:type/:address/:fees" element={<AdmitTenant />} />
+          <Route path="view_tenants" element={<ViewTenants />} />
+          <Route path="tenant_details/:id" element={<TenantDetails />} >
+                <Route path="view_tenant_profile/:id" element={<ViewTenantProfile />} />
+          </Route>
+          <Route path="update_tenant_profile/:id" element={<UpdateTenantProfile />} />
+          <Route path="update_tenant/:id" element={<UpdateTenant />} />
+          <Route path="add_property" element={<AddProperty />} />
+          <Route path="view_properties" element={<ViewProperties />} />
+          <Route path="update_property/:id" element={<UpdateProperty />} />
+          <Route path="list_property/:id" element={<ListProperty />} />
+          <Route path="listed_properties" element={<ListedProperties />} />
+          <Route path="create_announcement" element={<CreateAnnouncement />} />
+          <Route path="view_announcements" element={<ViewAnnouncements />} />
+	  <Route path="log_request" element={<LogRequest />} />
+          <Route path="view_my_log_requests" element={<ViewMyLogRequests />} />
+          <Route path="view_all_log_requests" element={<ViewAllLogRequests />} />
+    	  <Route path="upload_document" element={<UploadDocument />} />
+          <Route path="change_password" element={<ChangePassword />} />
+          <Route path="logout" element={<Logout />} />
     </Route>
-    <Route path="TenantDashboard" element={<TenantNavBar />}>
+    <Route path="tenant_dashboard" element={<TenantNavBar />}>
           <Route index element={<TenantDashboard />} />
-          <Route path="Chat" element={<Chat />} />
-          <Route path="ViewMyLogRequests" element={<ViewMyLogRequests />} />
-          <Route path="UpdateProfile" element={<UpdateProfile />} />
-	  <Route path="LogRequest" element={<LogRequest />} />
-    	  <Route path="UploadDocument" element={<UploadDocument />} />
-          <Route path="ChangePassword" element={<ChangePassword />} />
-          <Route path="Logout" element={<Logout />} />
+          <Route path="chat" element={<Chat />} />
+          <Route path="view_my_log_requests" element={<ViewMyLogRequests />} />
+          <Route path="update_profile" element={<UpdateProfile />} />
+	  <Route path="log_request" element={<LogRequest />} />
+    	  <Route path="upload_document" element={<UploadDocument />} />
+          <Route path="change_password" element={<ChangePassword />} />
+          <Route path="logout" element={<Logout />} />
     </Route>
     </>
   )

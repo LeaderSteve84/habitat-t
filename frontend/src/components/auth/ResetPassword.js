@@ -13,12 +13,19 @@ const ResetPassword = () => {
     e.preventDefault();
     try {
       const response = await axios.post(`/api/reset_password/${token}`, { newPassword, confirmPassword });
-      const { msg } = response.data;
+      console.log(response.data);
+      const { msg, email, role, tenantId, address } = response.data;
       setMessage({ msg: msg?.toString() });
-      navigate("/login");
+      const UserEmail = email?.toString();
+      const UserRole = role?.toString();
+      if (UserRole === "tenant") {
+        navigate(`/tenant_profile/${UserEmail}/${tenantId}/${address}`);
+      } else {
+        navigate("/login");
+      }
 
     } catch (error) {
-      const errorMessage = error.response?.data?.error || "Error admitting tenant";
+      const errorMessage = error.response?.data?.error || "Error reseting password";
       setMessage({ error: errorMessage });
     }
   };

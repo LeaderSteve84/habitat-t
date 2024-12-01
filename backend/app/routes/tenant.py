@@ -48,6 +48,7 @@ def create_tenant():
             ), 400
 
         tenant = Tenant(
+            property_id=ObjectId(data['propertyId']),
             email=data['email'],
             password=generate_password_hash(data['password']),
             tenancy_info=data['tenancyInfo'],
@@ -93,6 +94,7 @@ def get_all_tenants():
             "tenantId": str(tenant['_id']),
             "dateCreated": tenant['date_created'],
             "lastUpdated": tenant['date_updated'],
+            "propertyId": str(tenant['property_id']),
             "email": tenant['email'],
             "rentageType": tenant['tenancy_info']['type'],
             "address": tenant['tenancy_info']['address'],
@@ -110,7 +112,7 @@ def get_all_tenants():
         return jsonify({"error": str(e)}), 500
 
 
-# Get/fetch a Specific Tenant Details
+# Get a Specific Tenant Details
 @tenant_bp.route('/api/admin/tenants/<tenant_id>', methods=['GET', 'OPTIONS'])
 def get_tenant(tenant_id):
     """get specific tenant"""
@@ -123,6 +125,7 @@ def get_tenant(tenant_id):
                 "tenantId": str(tenant['_id']),
                 "dateCreated": tenant['date_created'],
                 "lastUpdated": tenant['date_updated'],
+                "propertyId": str(tenant['property_id']),
                 "email": tenant['email'],
                 "rentageType": tenant['tenancy_info']['type'],
                 "address": tenant['tenancy_info']['address'],
