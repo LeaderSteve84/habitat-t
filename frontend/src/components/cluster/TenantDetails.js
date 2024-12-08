@@ -33,7 +33,8 @@ function TenantDetails() {
 
   return (
     <div className="container my-3">
-        <h2 className="h2 text-center">Tenant/Client Details</h2>
+        <h2 className="h2 text-center">Tenant | Client Details</h2>
+        <p className="text-primary text-center mb-4">{ clusterName }</p>
           { isPending && <div className="text-center">Loading...</div> }
           { isPending && error && <div className="alert alert-danger">{error.error}</div> }
           { message && (
@@ -67,7 +68,7 @@ function TenantDetails() {
               <p><strong>Active:</strong> {tenant.active?.toString()}</p>
               <p><strong>Date Created:</strong> {tenant.dateCreated}</p>
               <p><strong>Last Updated:</strong> {tenant.lastUpdated}</p>
-              <p><strong>Tenant ID:</strong> {tenant.tenantId}</p>
+              <p><strong>Tenant | Client ID:</strong> {tenant.tenantId}</p>
               <p><strong>Property ID:</strong> {tenant.propertyId}</p>
 	   </div>
 	</div>

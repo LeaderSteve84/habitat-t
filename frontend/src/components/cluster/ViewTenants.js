@@ -37,7 +37,8 @@ function ViewTenants() {
 
   return (
     <div>
-      <h1 className="h2 text-center">Tenants/Clients List</h1>
+      <h1 className="h2 text-center">Tenants | Clients List</h1>
+      <p className="text-primary text-center">{ clusterName }</p>
         { isPending && <div className="text-center">Loading ... </div> }
         { !isPending && error && <div className="alert alert-danger">{ error.error }</div> }
 	{ message && (
@@ -47,7 +48,7 @@ function ViewTenants() {
                 { message.amsg && <div className="alert alert-info">{message.amsg}</div> }
             </>
 	)}
-      <div className="container mt-5 table-container">
+      <div className="container mt-4 table-container">
         <div className="row">
           <div className="col-md-12">
             <table className="table table-hover table-bordered table-striped">

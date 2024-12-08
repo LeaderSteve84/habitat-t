@@ -48,7 +48,7 @@ function ClusterNavBar() {
                     <Link className="nav-link" as={Link} to={`/cluster_dashboard/${companyId}/${clusterId}/${clusterName}/chat`}>Chat Room</Link>
                     <Link className="nav-link" as={Link} to={`/cluster_dashboard/${companyId}/${clusterId}/${clusterName}/add_unit`}>Add Unit</Link>
                     <Link className="nav-link" as={Link} to={`/cluster_dashboard/${companyId}/${clusterId}/${clusterName}/view_units`}>View All Units</Link>
-                    <Link className="nav-link" as={Link} to={`/cluster_dashboard/${companyId}/${clusterId}/${clusterName}/view_tenants`}>View All Tenants|Clients</Link>
+                    <Link className="nav-link" as={Link} to={`/cluster_dashboard/${companyId}/${clusterId}/${clusterName}/view_tenants`}>View All Tenants | Clients</Link>
                     <Link className="nav-link" as={Link} to={`/cluster_dashboard/${companyId}/${clusterId}/${clusterName}/listed_units`}>View Listed Units</Link>
                     <Link className="nav-link" as={Link} to={`/cluster_dashboard/${companyId}/${clusterId}/${clusterName}/create_cluster_announcement`}>Create Announcement</Link>
                     <Link className="nav-link" as={Link} to={`/cluster_dashboard/${companyId}/${clusterId}/${clusterName}/view_cluster_announcements`}>View All Announcement</Link>

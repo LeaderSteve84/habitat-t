@@ -71,13 +71,13 @@ def get_all_properties_unit(cluster_id):
 
 
 # Get Specific Property unit Details
-@unit_bp.route('/api/cluster/unit/<unit_id>', methods=['GET', 'OPTIONS'])
-def get_specific_property_unit(unit_id):
+@unit_bp.route('/api/cluster/unit/<cluster_id>/<unit_id>', methods=['GET', 'OPTIONS'])
+def get_specific_property_unit(cluster_id, unit_id):
     """Retrieve details of a specific property unit by ID.
     """
     try:
         unit = unitCollection.find_one(
-            {"_id": ObjectId(unit_id)}
+            {"_id": ObjectId(unit_id), "cluster_id": ObjectId(cluster_id)}
         )
         if unit:
             return jsonify({
@@ -96,7 +96,7 @@ def get_specific_property_unit(unit_id):
 
             return jsonify({"error": "Property unit not found"}), 404
     except InvalidId:
-        return jsonify({"error": "Invalid unit ID format"}), 404
+        return jsonify({"error": "Invalid cliuster ID or unit ID format"}), 404
     except PyMongoError as e:
         return jsonify({"error": str(e)}), 500
     except Exception as e:
@@ -104,15 +104,14 @@ def get_specific_property_unit(unit_id):
 
 
 # Update Property unit Details
-@unit_bp.route('/api/cluster/unit/<unit_id>', methods=['PUT', 'OPTIONS'])
-def update_unit(unit_id):
+@unit_bp.route('/api/cluster/unit/<cluster_id>/<unit_id>', methods=['PUT', 'OPTIONS'])
+def update_unit(cluster_id, unit_id):
     """Update a specific property unit by ID."""
     data = request.json
     try:
         update_data = {
             "address": data['address'],
             "unit_type": data['type'],
-            "unit_availability": data['unitAvailability'],
             "rental_fees": data['rentalFees']
         }
     except KeyError as e:
@@ -122,7 +121,7 @@ def update_unit(unit_id):
 
     try:
         result = unitCollection.update_one(
-            {"_id": ObjectId(unit_id)}, {"$set": update_data}
+            {"_id": ObjectId(unit_id), "cluster_id": ObjectId(cluster_id)}, {"$set": update_data}
         )
         if result.matched_count == 0:
             return jsonify({"msg": "Property unit not found"}), 404

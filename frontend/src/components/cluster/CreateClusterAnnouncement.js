@@ -62,7 +62,8 @@ const CreateClusterAnnouncement = () => {
         <div className="col-md-9">
           <div className="card shadow-lg">
             <div className="card-body">
-              <h2 className="card-title text-center mb-4">Create Cluster Announcement</h2>
+              <h2 className="h4 card-title text-center">Create Cluster Announcement</h2>
+              <p className="text-primary text-center mb-4">{ clusterName }</p>
                 { message && (
                     <div>
                        { message.msg && <p className="alert alert-info">{ message.msg }</p> }

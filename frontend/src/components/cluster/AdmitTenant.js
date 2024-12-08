@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 const AdmitTenant = () => {
 
   const navigate = useNavigate();
-  const { companyId, clusterId, unitId, type, address, fees } = useParams();
+  const { companyId, clusterId, clusterName, unitId, type, address, fees } = useParams();
 
   const [formData, setFormData] = useState({
     unitId: `${unitId}`,
@@ -95,7 +95,8 @@ const AdmitTenant = () => {
       <div className="col-md-9">
       <div className="card shadow-lg">
       <div className="card-body">
-      <h2 className="card-title text-center mb-4">Admit Tenant/Client</h2>
+      <h2 className="card-title text-center mb-1">Admit Clients</h2>
+      <p className="text-center mb-4 text-primary">{ clusterName }</p>
       { message && (
         <div>
            { message.msg && <p className="alert alert-info">{ message.msg }</p> }

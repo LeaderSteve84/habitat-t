@@ -11,6 +11,7 @@ import CompanyNavbar from "./components/company/CompanyNavbar";
 import CompanyDashboard from "./components/company/CompanyDashboard";
 import CreateCluster from "./components/company/CreateCluster";
 import ViewClusters from "./components/company/ViewClusters";
+import UpdateCluster from "./components/company/UpdateCluster";
 
 // import from cluster directory
 import ClusterNavBar from "./components/cluster/ClusterNavBar";
@@ -74,6 +75,7 @@ const router = createBrowserRouter(
           <Route index element={<CompanyDashboard />} />
           <Route path="create_cluster" element={<CreateCluster />} />
           <Route path="view_clusters" element={<ViewClusters />} />
+          <Route path="update_cluster/:clusterId" element={<UpdateCluster />} />
           <Route path="upload_document" element={<UploadDocument />} />
           <Route path="change_password" element={<ChangePassword />} />
           <Route path="logout" element={<Logout />} />

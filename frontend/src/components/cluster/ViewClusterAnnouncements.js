@@ -46,7 +46,8 @@ function ViewClusterAnnouncements() {
 
   return (
     <div>
-      <h1 className="h2 text-center">{ decodeURIComponent(clusterName) } Announcements</h1>
+      <h1 className="h4 text-center">Property Cluster Announcements</h1>
+      <p className="text-primary text-center">{ decodeURIComponent(clusterName) }</p>
         { isPending && <div className="text-center">Loading ... </div> }
         { !isPending && error && <div className="alert alert-danger">{ error.error }</div> }
 	{ message && (
@@ -55,7 +56,7 @@ function ViewClusterAnnouncements() {
 		{ message.msg && <div className="alert alert-danger">{message.error}</div> }
               </>
 	)}
-      <div className="container mt-5 table-container">
+      <div className="container mt-4 table-container">
         <div className="row">
           <div className="col-md-12">
             <table className="table table-hover table-bordered table-striped">

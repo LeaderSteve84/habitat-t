@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 const AddUnit = () => {
 
-  const { companyId, clusterId } = useParams();
+  const { companyId, clusterId, clusterName } = useParams();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -50,7 +50,7 @@ const AddUnit = () => {
       setMessage({
         msg: msg?.toString()
       });
-      navigate(`/cluster_dashboard/${companyId}/${clusterId}/view_units`);
+      navigate(`/cluster_dashboard/${companyId}/${clusterId}/${clusterName}/view_units`);
 
     } catch (error) {
       const errorMessage = error.response?.data?.error || "Error entry property unit";
@@ -64,7 +64,8 @@ const AddUnit = () => {
         <div className="col-md-9">
           <div className="card shadow-lg">
             <div className="card-body">
-              <h2 className="card-title text-center mb-4">Add Property Unit</h2>
+              <h2 className="card-title text-center mb-1 h-2">Add Property Units</h2>
+              <p className="text-center mb-4 text-primary">{ clusterName }</p>
                 { message && (
                     <div>
                        { message.msg && <p className="alert alert-info">{ message.msg }</p> }
@@ -80,13 +81,13 @@ const AddUnit = () => {
                    </div>
                  </div>
 	         <div className="mb-3 row">
-                   <label className="col-sm-2 col-form-label">Address:</label>
+                   <label className="col-sm-2 col-form-label">Unit Address:</label>
                    <div className="col-sm-10">
                      <input type="text" className="form-control" name="address" value={formData.address} required onChange={handleChange} />
                    </div>
                  </div>
                  <div className="mb-3 row">
-                   <label className="col-sm-2 col-form-label">Fees/Amount:</label>
+                   <label className="col-sm-2 col-form-label">Fees | Amounts:</label>
                    <div className="col-sm-10">
                      <input type="number" className="form-control" name="rentalFees" value={formData.rentalFees} required onChange={handleChange} />
                    </div>

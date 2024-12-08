@@ -27,7 +27,8 @@ function ViewTenantProfile() {
 
   return (
     <div className="container my-3">
-        <h2 className="h2 text-center">Tenant Profile</h2>
+        <h2 className="h2 text-center">Tenant | Client Profile</h2>
+        <p className="text-primary text-center mb-4">{ clusterName }</p>
           { isPending && <div className="text-center">Loading...</div> }
           { !isPending && error && <div className="alert alert-danger">{error.error}</div> }
           { message && <div className="alert alert-danger">{message.error}</div> }
@@ -58,7 +59,7 @@ function ViewTenantProfile() {
               <p><strong>Date Created:</strong> {profile.dateCreated}</p>
               <p><strong>Last Updated:</strong> {profile.lastUpdated}</p>
               <p><strong>Profile Id:</strong> {profile.profileId}</p>
-              <p><strong>Tenant Id:</strong> {profile.tenantId}</p>
+              <p><strong>Tenant | Client Id:</strong> {profile.tenantId}</p>
               <p><strong>Active:</strong> {profile.active?.toString()}</p>
               <p><strong>Lease Agreement:</strong> {profile.leaseAgreement}</p>
            </div>
