@@ -11,7 +11,7 @@ admin_message_bp = Blueprint('admin_message', __name__)
 
 adminMessagesCollection = current_app.adminMessagesCollection
 
-# Create Admin Message
+# Create admin Message
 @admin_message_bp.route('/api/admin/messages', methods=['POST', 'OPTIONS'])
 def create_message():
     """Create an admin message.

@@ -17,6 +17,7 @@ logger = current_app.logger
 mail = current_app.mail
 tenantsCollection = current_app.tenantsCollection
 adminsCollection = current_app.adminsCollection
+companyCollection = current_app.companyCollection
 
 
 # function to authenticate
@@ -24,6 +25,8 @@ def authenticate(email, password, role):
     """to authenticate the user"""
     if role == 'admin':
         user = adminsCollection.find_one({"email": email})
+    elif role == 'company':
+        user = companyCollection.find_one({"email": email})
     elif role == 'tenant':
         user = tenantsCollection.find_one({"email": email})
     else:
@@ -76,7 +79,7 @@ def login():
         identity={"email": email, "role": role, "id": str(user["_id"])},
         expires_delta=expires
     )
-    response = jsonify(msg="Login successful")
+    response = jsonify(msg="Login successful", id=str(user["_id"]))
     set_access_cookies(response, access_token)
 
     return response
@@ -95,7 +98,11 @@ def forgot_password():
 
     user = tenantsCollection.find_one(
         {"email": email}
-    ) or adminsCollection.find_one({"email": email})
+    ) or adminsCollection.find_one(
+        {"email": email}
+    ) or companyCollection.find_one(
+        {"email": email}
+    )
 
     if not user:
         return jsonify({"error": "Email not found or wrong email"}), 404
@@ -146,7 +153,10 @@ def reset_password(token):
         {"email": email}
     ) or adminsCollection.find_one(
         {"email": email}
+    ) or companyCollection.find_one(
+        {"email": email}
     )
+
     if not user:
         return jsonify({"error": "User not found"}), 404
     new_hashed_password = generate_password_hash(new_password)
@@ -154,19 +164,25 @@ def reset_password(token):
 
     logger.debug(f"Resseting password for user with role: {user_role}")
 
-    if user_role not in ['tenant', 'admin']:
+    if user_role not in ['tenant', 'admin', 'company']:
         return jsonify({"error": "Invalid user role"}), 400
 
-    collection = tenantsCollection if user.get(
-        'role'
-    ) == 'tenant' else adminsCollection
+    collections = {
+        "tenant": tenantsCollection,
+        "admin": adminsCollection
+    }
+
+    collection = collections.get(
+        user.get('role'),
+        companyCollection
+    )
 
     result = collection.update_one(
         {"email": email},
         {"$set": {"password": new_hashed_password}}
     )
 
-    if result.modified_count == 1:
+    if result.modified_count == 1 and user.get('role') == 'tenant':
         logger.debug("Password updated successfully")
         return jsonify(
             {
@@ -180,6 +196,12 @@ def reset_password(token):
                     'address', 'No, in estate'
                 )
             }), 200
+    elif result.modified_count == 1 and user.get('role') == 'admin':
+        return jsonify({"msg": "Password has been reset", "role": user.get('role')}), 200
+
+    elif result.modified_count == 1 and user.get('role') == 'company':
+        return jsonify({"msg": "Password has been reset", "role": user.get('role')}), 200
+
     else:
         logger.debug("Password update failed")
         return jsonify({"error": "Password reset failed, try again"}), 400

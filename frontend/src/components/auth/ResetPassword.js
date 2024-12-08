@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+// import useFetch from "../customHooks/useFetch";
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -13,13 +14,26 @@ const ResetPassword = () => {
     e.preventDefault();
     try {
       const response = await axios.post(`/api/reset_password/${token}`, { newPassword, confirmPassword });
-      console.log(response.data);
-      const { msg, email, role, tenantId, address } = response.data;
+
+      const { msg, role, email, tenantId, address } = response.data;
       setMessage({ msg: msg?.toString() });
-      const UserEmail = email?.toString();
-      const UserRole = role?.toString();
-      if (UserRole === "tenant") {
-        navigate(`/tenant_profile/${UserEmail}/${tenantId}/${address}`);
+
+      if (role === "tenant") {
+
+        try {
+          const resp = await axios.get(`/api/tenant/profile/${tenantId}`);
+          console.log(resp);
+          navigate("/login");
+
+        } catch (error) {
+          if (error.response.status === 404 ) {
+            const encodedAddress = encodeURIComponent(`${address}`);
+            navigate(`/tenant_profile/${email}/${tenantId}/${encodedAddress}`);
+          } else {
+            console.error(error.response.data);
+          }
+        }
+
       } else {
         navigate("/login");
       }
@@ -37,6 +51,8 @@ const ResetPassword = () => {
           <div className="card shadow-lg">
             <div className="card-body">
              <h3 className="card-title text-center mb-4">Reset Password</h3>
+             {/* isPending && <div className="alert alert-info">Verifying if profile exist...</div>*/}
+             {/* error && <div className="alert alert-info">error.error</div>*/}
              { message && (
                   <div>
                      {message.msg && <div className="alert alert-info">{message.msg}</div>}

@@ -7,7 +7,7 @@ from datetime import datetime
 class Tenant:
     """class of the tenant instance"""
     def __init__(
-        self, property_id, email, password, tenancy_info, lease_agreement_details, \
+        self, unit_id, company_id, cluster_id, email, password, tenancy_info, lease_agreement_details, \
         role, date_updated=None, tenant_id=None, active=True
     ):
         """Initializer/object constructor.
@@ -20,7 +20,9 @@ class Tenant:
         self.tenant_id = tenant_id if tenant_id else ObjectId()
         self.date_created = datetime.now()
         self.date_updated = date_updated if date_updated else datetime.now()
-        self.property_id = property_id
+        self.unit_id = unit_id
+        self.company_id = company_id
+        self.cluster_id = cluster_id
         self.email = email
         self.password = password  # hashed password
         self.tenancy_info = tenancy_info
@@ -34,7 +36,9 @@ class Tenant:
             "_id": self.tenant_id,
             "date_created": self.date_created,
             "date_updated": self.date_updated,
-            "property_id": self.property_id,
+            "unit_id": self.unit_id,
+            "company_id": self.company_id,
+            "cluster_id": self.cluster_id,
             "email": self.email,
             "password": self.password,
             "tenancy_info": self.tenancy_info,

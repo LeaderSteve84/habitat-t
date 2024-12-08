@@ -213,7 +213,7 @@ def update_tenant_profile(profile_id):
 
 
 # Deactivate Tenant profile
-@profile_bp.route('/api/tenant/profile/deactivate/<profile_id>', methods=['DELETE', 'OPTIONS'])
+@profile_bp.route('/api/tenant/profile/<profile_id>/deactivate', methods=['DELETE', 'OPTIONS'])
 # @jwt_required()
 def deactivate_tenant_profile(profile_id):
     """Deactivate a specific tenant profile with a profile_id, updating/setting

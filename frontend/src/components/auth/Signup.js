@@ -1,30 +1,44 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
-export default function Login() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [role, setRole] = useState('tenant');
-    const [rememberMe, setRememberMe] = useState(false);
+export default function Signup() {
+
+    const [formData, setFormData] = useState({
+      fullname: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+      companyName: "",
+      position: "",
+      businessLocation: ""
+    });
+
     const [message, setMessage] = useState(null);
     const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
+    const handleChange = (e) => {
+      setFormData({
+        ...formData, 
+        [e.target.name]: e.target.value,
+      });
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('/api/login', {
-                email,
-                password,
-                role,
-                remember_me: rememberMe,
-            });
-            const { msg } = response.data;
-            setMessage({msg: msg?.toString()});
-            navigate('/tenant_dashboard');
+          const data = {
+            ...formData, role: "company"
+          };
+          console.log("Form Data Submitted: ", data);
+          const response = await axios.post('/api/company', data);
+          const { msg } = response.data;
+          setMessage({msg: msg?.toString()});
+          navigate('/login');
 
         } catch (error) {
-            setMessage({ error: error.response?.data?.error || "Login failed. Please try again." });
+            setMessage({ error: error.response?.data?.error || "Signup failed. Please try again." });
         }
     };
 
@@ -34,37 +48,56 @@ export default function Login() {
               <div className="col-md-6">
                  <div className="card shadow-lg">
                     <div className="card-body">
-                    <h3 className="card-title text-center mb-4">Login</h3>
+                    <h3 className="card-title text-center mb-4 fw-bold h4">Sign Up</h3>
                     { message && (
                             <>
                             { message.msg && <div className="alert alert-info">{message.msg}</div> }
                             { message.error && <div className="alert alert-danger">{message.error}</div> }
                             </>
                     )}
-                    <form onSubmit={handleLogin}>
+                    <form onSubmit={handleSubmit}>
                        <div className="mb-3">
-                          <label htmlFor="email" className="form-label">Email</label>
-                          <input type="email" className="form-control" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                          <label htmlFor="fullname" className="form-label">Full Name:</label>
+                          <input type="text" className="form-control" id="fullname" name="fullname" placeholder="Enter your fullname" value={formData.fullname} onChange={handleChange} required />
+                       </div>
+		       <div className="mb-3">
+                          <label htmlFor="email" className="form-label">Email:</label>
+                          <input type="email" className="form-control" id="email" name="email" placeholder="Enter your email" value={formData.email} onChange={handleChange} required />
+                       </div>
+		       <div className="mb-3">
+                          <label htmlFor="phone" className="form-label">Phone:</label>
+                          <input type="tel" className="form-control" id="phone" name="phone" placeholder="Enter your phone number" value={formData.phone} onChange={handleChange} required />
+		       </div>
+                       <div className="mb-3">
+                          <label htmlFor="password" className="form-label">Password:</label>
+                          <input type="password" className="form-control" id="password" name="password" placeholder="Create a password" value={formData.password} onChange={handleChange} required />
+                       </div>
+		       <div className="mb-3">
+                          <label htmlFor="confirmPassword" className="form-label">Confirm Password:</label>
+                          <input type="password" className="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" value={formData.confirmPassword} onChange={handleChange} required />
                        </div>
                        <div className="mb-3">
-                          <label htmlFor="password" className="form-label">Password</label>
-                          <input type="password" className="form-control" id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                       </div>
-                       <div className="mb-3">
-                          <label htmlFor="role" className="form-label">Role</label>
-                          <select className="form-select" id="role" value={role} onChange={(e) => setRole(e.target.value)} required >
-                             <option value="tenant">User</option>
-                             <option value="admin">Admin</option>
-                          </select>
+                          <label htmlFor="companyName" className="form-label">Company Name:</label>
+                          <input type="text" className="form-control" id="companyName" name="companyName" placeholder="Enter your company name" value={formData.companyName} onChange={handleChange} required />
                        </div>
                        <div className="form-check mb-3">
-                          <input type="checkbox" className="form-check-input" id="rememberMe" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} />
-                          <label className="form-check-label" htmlFor="rememberMe">Remember Me</label>
+                          <label className="form-label" htmlFor="position">Position:</label>
+                          <select className="form-control" id="position" name="position" value={formData.position} onChange={handleChange} required >
+                            <option value="">Select your role/position</option>
+                            <option value="owner">Owner</option>
+                            <option value="property manager">Property Manager</option>
+                            <option value="real estate agent">Real Estate Agent</option>
+                            <option value="others">Others</option>
+                          </select>
                        </div>
-                          <button type="submit" className="btn btn-primary w-100">Login</button>
+		       <div className="mb-3">
+                          <label htmlFor="businessLocation" className="form-label">Company Location:</label>
+                          <input type="text" className="form-control" id="businessLocation" name="businessLocation" placeholder="City, Country e.g Abuja, Nigeria" value={formData.businessLocation} onChange={handleChange} required />
+                       </div>
+                          <button type="submit" className="btn btn-primary w-100">Create Account</button>
                     </form>
                     <div className="text-center mt-3">
-                       <Link className="nav-link" as={Link} to="/forgot_password">Forgot Password?</Link>
+                       Already have an account? <Link className="nav-link btn btn-primary" as={Link} to="/login">Log In</Link>
                     </div>
                     </div>
                  </div>

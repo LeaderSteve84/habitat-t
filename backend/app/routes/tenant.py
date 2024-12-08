@@ -34,7 +34,7 @@ def send_email(subject, recipients, body):
         logger.error(f"Failed to send email to {recipients}: {e}")
 
 # Create Tenant Account
-@tenant_bp.route('/api/admin/tenants', methods=['POST', 'OPTIONS'])
+@tenant_bp.route('/api/cluster/tenants', methods=['POST', 'OPTIONS'])
 def create_tenant():
     """Create tenant as instance of Tenant, post tenant to MongoDB database,
        and send notification email with a reset password link.
@@ -48,7 +48,9 @@ def create_tenant():
             ), 400
 
         tenant = Tenant(
-            property_id=ObjectId(data['propertyId']),
+            unit_id=ObjectId(data['unitId']),
+            company_id=ObjectId(data['companyId']),
+            cluster_id=ObjectId(data['clusterId']),
             email=data['email'],
             password=generate_password_hash(data['password']),
             tenancy_info=data['tenancyInfo'],
@@ -83,18 +85,18 @@ def create_tenant():
     return jsonify({"msg": "Tenant created successfully", "tenantId": str(tenant_id)}), 201
 
 
-# Get all tenants
-@tenant_bp.route('/api/admin/tenants', methods=['GET', 'OPTIONS'])
+# Get all tenants in a cluster
+@tenant_bp.route('/api/cluster/tenants/<cluster_id>', methods=['GET', 'OPTIONS'])
 # @jwt_required()
-def get_all_tenants():
+def get_all_tenants(cluster_id):
     """Find all tenants from MongoDB and return a list of all the tenants."""
     try:
-        tenants = tenantsCollection.find({"active": True})
+        tenants = tenantsCollection.find({"cluster_id": ObjectId(cluster_id), "active": True})
         tenants_list = [{
             "tenantId": str(tenant['_id']),
             "dateCreated": tenant['date_created'],
             "lastUpdated": tenant['date_updated'],
-            "propertyId": str(tenant['property_id']),
+            "unitId": str(tenant['unit_id']),
             "email": tenant['email'],
             "rentageType": tenant['tenancy_info']['type'],
             "address": tenant['tenancy_info']['address'],
@@ -113,19 +115,19 @@ def get_all_tenants():
 
 
 # Get a Specific Tenant Details
-@tenant_bp.route('/api/admin/tenants/<tenant_id>', methods=['GET', 'OPTIONS'])
-def get_tenant(tenant_id):
+@tenant_bp.route('/api/cluster/tenant/<cluster_id>/<tenant_id>', methods=['GET', 'OPTIONS'])
+def get_tenant(cluster_id, tenant_id):
     """get specific tenant"""
     try:
         tenant = tenantsCollection.find_one(
-            {"_id": ObjectId(tenant_id), "active": True}
+                {"_id": ObjectId(tenant_id), "cluster_id": ObjectId(cluster_id), "active": True}
         )
         if tenant:
             return jsonify({
                 "tenantId": str(tenant['_id']),
                 "dateCreated": tenant['date_created'],
                 "lastUpdated": tenant['date_updated'],
-                "propertyId": str(tenant['property_id']),
+                "unitId": str(tenant['unit_id']),
                 "email": tenant['email'],
                 "rentageType": tenant['tenancy_info']['type'],
                 "address": tenant['tenancy_info']['address'],
@@ -150,7 +152,7 @@ def get_tenant(tenant_id):
 
 
 # Update Specific Tenant Details
-@tenant_bp.route('/api/admin/tenants/update/<tenant_id>', methods=['GET', 'PUT', 'OPTIONS'])
+@tenant_bp.route('/api/cluster/tenant/<tenant_id>/update', methods=['GET', 'PUT', 'OPTIONS'])
 # @jwt_required()
 def update_tenant(tenant_id):
     """Update a specific tenant with a tenant_id.
@@ -196,7 +198,7 @@ def update_tenant(tenant_id):
 
 
 # Deactivate/Delete Tenant Account
-@tenant_bp.route('/api/admin/tenants/<tenant_id>', methods=['DELETE', 'OPTIONS'])
+@tenant_bp.route('/api/cluster/tenants/<tenant_id>', methods=['DELETE', 'OPTIONS'])
 # @jwt_required()
 def delete_tenant(tenant_id):
     """Deactivate a specific tenant with a tenant_id, updating/setting

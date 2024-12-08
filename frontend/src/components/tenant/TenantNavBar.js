@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useParams } from "react-router-dom";
 
 function TenantNavBar() {
+
+  const { tenantId } = useParams();
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
@@ -41,14 +43,14 @@ function TenantNavBar() {
         </Offcanvas.Header>
         <Offcanvas.Body>
 	   <nav className="nav flex-column">
-                    <Link className="nav-link" as={Link} to="/tenant_dashboard">Dashboard</Link>
-                    <Link className="nav-link" as={Link} to="/tenant_dashboard/chat">Chat Room</Link>
-                    <Link className="nav-link" as={Link} to="/tenant_dashboard/log_request">Log Request</Link>
-                    <Link className="nav-link" as={Link} to="/tenant_dashboard/view_my_log_requests">My Logged Requests</Link>
-                    <Link className="nav-link" as={Link} to="/tenant_dashboard/update_profile">Update Profile</Link>
-                    <Link className="nav-link" as={Link} to="/tenant_dashboard/upload_document">Upload Document</Link>
-                    <Link className="nav-link" as={Link} to="/tenant_dashboard/change_password">Change Password</Link>
-                    <Link className="nav-link" as={Link} to="/tenant_dashboard/logout">Logout</Link>
+                    <Link className="nav-link" as={Link} to={`/tenant_dashboard/${tenantId}`}>Dashboard</Link>
+                    <Link className="nav-link" as={Link} to={`/tenant_dashboard/${tenantId}/chat`}>Chat Room</Link>
+                    <Link className="nav-link" as={Link} to={`/tenant_dashboard/${tenantId}/log_request`}>Log Request</Link>
+                    <Link className="nav-link" as={Link} to={`/tenant_dashboard/${tenantId}/view_my_log_requests`}>My Logged Requests</Link>
+                    <Link className="nav-link" as={Link} to={`/tenant_dashboard/${tenantId}/update_profile`}>Update Profile</Link>
+                    <Link className="nav-link" as={Link} to={`/tenant_dashboard/${tenantId}/upload_document`}>Upload Document</Link>
+                    <Link className="nav-link" as={Link} to={`/tenant_dashboard/${tenantId}/change_password`}>Change Password</Link>
+                    <Link className="nav-link" as={Link} to={`/tenant_dashboard/${tenantId}/logout`}>Logout</Link>
            </nav>
         </Offcanvas.Body>
       </Offcanvas>

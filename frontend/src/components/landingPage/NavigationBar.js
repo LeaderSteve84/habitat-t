@@ -15,7 +15,7 @@ export default function NavigationBar() {
                   <Nav.Link as={Link} to="/">Home</Nav.Link>
                   <Nav.Link as={Link} to="/about">About Us</Nav.Link>
                   <Nav.Link as={Link} to="/contact">Contact Us</Nav.Link>
-                  <Nav.Link as={Link} to="/login">Login</Nav.Link> 
+                  <Nav.Link className="btn btn-primary" as={Link} to="/login">Sign Up | Log In</Nav.Link> 
                 </Nav>
               </Navbar.Collapse>
            </Container>

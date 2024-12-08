@@ -42,16 +42,20 @@ def initialize_collections(client: MongoClient, db_name: str):
     adminMessagesCollection: Collection = database.get_collection(
         "adminMessages"
     )
-    propertiesCollection: Collection = database.get_collection("properties")
+    unitCollection: Collection = database.get_collection("unit")
     listingCollection: Collection = database.get_collection("listing")
     logRequestsCollection: Collection = database.get_collection("logRequests")
     adminsCollection: Collection = database.get_collection("admins")
     messagesCollection: Collection = database.get_collection("messages")
     profileCollection: Collection = database.get_collection("profile")
+    companyCollection: Collection = database.get_collection("company")
+    clusterCollection: Collection = database.get_collection("cluster")
+    clusterAnnouncementCollection: Collection = database.get_collection("clusterAnnouncement")
     return (
-        tenantsCollection, adminMessagesCollection, propertiesCollection,
+        tenantsCollection, adminMessagesCollection, unitCollection,
         listingCollection, logRequestsCollection, adminsCollection,
-        messagesCollection, profileCollection
+        messagesCollection, profileCollection, companyCollection,
+        clusterCollection, clusterAnnouncementCollection
     )
 
 
@@ -131,30 +135,38 @@ def create_app(config_name='default'):
 
     try:
         mongo_client: MongoClient = init_mongo_client(CONNECTION_STRING)
-        (tenantsCollection, adminMessagesCollection, propertiesCollection,
+        (tenantsCollection, adminMessagesCollection, unitCollection,
             listingCollection, logRequestsCollection, adminsCollection,
-            messagesCollection, profileCollection) = initialize_collections(mongo_client, DB_NAME)
+            messagesCollection, profileCollection, companyCollection,
+            clusterCollection, clusterAnnouncementCollection
+        ) = initialize_collections(mongo_client, DB_NAME)
     except (errors.ConnectionFailure, errors.ConfigurationError) as e:
         mongo_client = None
         tenantsCollection = None
         adminMessagesCollection = None
-        propertiesCollection = None
+        unitCollection = None
         listingCollection = None
         logRequestsCollection = None
         adminsCollection = None
         messagesCollection = None
         profileCollection = None
+        companyCollection = None
+        clusterCollection = None
+        clusterAnnouncementCollection = None
         print(f"Database initialization failed: {e}")
 
     # Store collections in the app context
     app.tenantsCollection = tenantsCollection
     app.adminMessagesCollection = adminMessagesCollection
-    app.propertiesCollection = propertiesCollection
+    app.unitCollection = unitCollection
     app.listingCollection = listingCollection
     app.logRequestsCollection = logRequestsCollection
     app.adminsCollection = adminsCollection
     app.messagesCollection = messagesCollection
     app.profileCollection = profileCollection
+    app.companyCollection = companyCollection
+    app.clusterCollection = clusterCollection
+    app.clusterAnnouncementCollection = clusterAnnouncementCollection
 
     with app.app_context():
         # Import routes here to avoid circular imports

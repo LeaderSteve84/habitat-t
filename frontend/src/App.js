@@ -6,22 +6,29 @@ import About from "./components/aboutPage/About";
 import NavigationBar from "./components/landingPage/NavigationBar";
 import Contact from "./components/contact/Contact";
 
-// import from admin directory
-import AdminNavBar from "./components/admin/AdminNavBar";
-import AdminDashboard from "./components/admin/AdminDashboard";
-import AdmitTenant from "./components/admin/AdmitTenant";
-import ViewTenants from "./components/admin/ViewTenants";
-import AddProperty from "./components/admin/AddProperty";
-import ViewProperties from "./components/admin/ViewProperties";
-import UpdateProperty from "./components/admin/UpdateProperty";
-import ListProperty from "./components/admin/ListProperty";
-import ListedProperties from "./components/admin/ListedProperties";
-import CreateAnnouncement from "./components/admin/CreateAnnouncement";
-import ViewAnnouncements from "./components/admin/ViewAnnouncements";
-import TenantDetails from "./components/admin/TenantDetails";
-import UpdateTenant from "./components/admin/UpdateTenant";
-import ViewTenantProfile from "./components/admin/ViewTenantProfile";
-import UpdateTenantProfile from "./components/admin/UpdateTenantProfile";
+// import from company directory
+import CompanyNavbar from "./components/company/CompanyNavbar";
+import CompanyDashboard from "./components/company/CompanyDashboard";
+import CreateCluster from "./components/company/CreateCluster";
+import ViewClusters from "./components/company/ViewClusters";
+
+// import from cluster directory
+import ClusterNavBar from "./components/cluster/ClusterNavBar";
+import ClusterDashboard from "./components/cluster/ClusterDashboard";
+import AdmitTenant from "./components/cluster/AdmitTenant";
+import ViewTenants from "./components/cluster/ViewTenants";
+import AddUnit from "./components/cluster/AddUnit";
+import ViewUnits from "./components/cluster/ViewUnits";
+import UpdateUnit from "./components/cluster/UpdateUnit";
+import ListUnit from "./components/cluster/ListUnit";
+import ListedUnits from "./components/cluster/ListedUnits";
+import CreateClusterAnnouncement from "./components/cluster/CreateClusterAnnouncement";
+import ViewClusterAnnouncements from "./components/cluster/ViewClusterAnnouncements";
+import UpdateClusterAnnouncement from "./components/cluster/UpdateClusterAnnouncement";
+import TenantDetails from "./components/cluster/TenantDetails";
+import UpdateTenant from "./components/cluster/UpdateTenant";
+import ViewTenantProfile from "./components/cluster/ViewTenantProfile";
+import UpdateTenantProfile from "./components/cluster/UpdateTenantProfile";
 
 // import from tenant directory
 import TenantNavBar from "./components/tenant/TenantNavBar";
@@ -45,6 +52,7 @@ import UploadDocument from "./components/uploadDocument/UploadDocument";
 import ChangePassword from "./components/auth/ChangePassword";
 import Logout from "./components/auth/Logout";
 import ForgotPassword from "./components/auth/ForgotPassword";
+import Signup from "./components/auth/Signup";
 import Login from "./components/auth/Login";
 import ResetPassword from "./components/auth/ResetPassword";
 
@@ -55,29 +63,39 @@ const router = createBrowserRouter(
           <Route index element={<Landing />} />
           <Route path="about" element={<About />} />
           <Route path="contact" element={<Contact />} />
+          <Route path="signup" element={<Signup />} />
           <Route path="login" element={<Login />} />
           <Route path="reset_password/:token" element={<ResetPassword />} />
           <Route path="tenant_profile/:email/:tenantId/:address" element={<TenantProfile />} />
           <Route path="lease_agreement/:id" element={<LeaseAgreement />} />
           <Route path="forgot_password" element={<ForgotPassword />} />
     </Route>
-    <Route path="admin_dashboard" element={<AdminNavBar />}>
-          <Route index element={<AdminDashboard />} />
+    <Route path="company_dashboard/:companyId" element={<CompanyNavbar />}>
+          <Route index element={<CompanyDashboard />} />
+          <Route path="create_cluster" element={<CreateCluster />} />
+          <Route path="view_clusters" element={<ViewClusters />} />
+          <Route path="upload_document" element={<UploadDocument />} />
+          <Route path="change_password" element={<ChangePassword />} />
+          <Route path="logout" element={<Logout />} />
+    </Route>
+    <Route path="cluster_dashboard/:companyId/:clusterId/:clusterName" element={<ClusterNavBar />}>
+          <Route index element={<ClusterDashboard />} />
           <Route path="chat" element={<Chat />} />
-          <Route path="admit_tenant/:id/:type/:address/:fees" element={<AdmitTenant />} />
+          <Route path="admit_tenant/:unitId/:type/:address/:fees" element={<AdmitTenant />} />
           <Route path="view_tenants" element={<ViewTenants />} />
-          <Route path="tenant_details/:id" element={<TenantDetails />} >
-                <Route path="view_tenant_profile/:id" element={<ViewTenantProfile />} />
+          <Route path="tenant_details/:tenantId" element={<TenantDetails />} >
+                <Route path="view_tenant_profile/:tenantId" element={<ViewTenantProfile />} />
           </Route>
-          <Route path="update_tenant_profile/:id" element={<UpdateTenantProfile />} />
-          <Route path="update_tenant/:id" element={<UpdateTenant />} />
-          <Route path="add_property" element={<AddProperty />} />
-          <Route path="view_properties" element={<ViewProperties />} />
-          <Route path="update_property/:id" element={<UpdateProperty />} />
-          <Route path="list_property/:id" element={<ListProperty />} />
-          <Route path="listed_properties" element={<ListedProperties />} />
-          <Route path="create_announcement" element={<CreateAnnouncement />} />
-          <Route path="view_announcements" element={<ViewAnnouncements />} />
+          <Route path="update_tenant_profile/:tenantId/:profileId" element={<UpdateTenantProfile />} />
+          <Route path="update_tenant/:tenantId" element={<UpdateTenant />} />
+          <Route path="add_unit" element={<AddUnit />} />
+          <Route path="view_units" element={<ViewUnits />} />
+          <Route path="update_unit/:unitId" element={<UpdateUnit />} />
+          <Route path="list_unit/:id" element={<ListUnit />} />
+          <Route path="listed_units" element={<ListedUnits />} />
+          <Route path="create_cluster_announcement" element={<CreateClusterAnnouncement />} />
+          <Route path="view_cluster_announcements" element={<ViewClusterAnnouncements />} />
+          <Route path="update_cluster_announcement/:announcementId" element={<UpdateClusterAnnouncement />} />
 	  <Route path="log_request" element={<LogRequest />} />
           <Route path="view_my_log_requests" element={<ViewMyLogRequests />} />
           <Route path="view_all_log_requests" element={<ViewAllLogRequests />} />
@@ -85,7 +103,7 @@ const router = createBrowserRouter(
           <Route path="change_password" element={<ChangePassword />} />
           <Route path="logout" element={<Logout />} />
     </Route>
-    <Route path="tenant_dashboard" element={<TenantNavBar />}>
+    <Route path="tenant_dashboard/:tenantId" element={<TenantNavBar />}>
           <Route index element={<TenantDashboard />} />
           <Route path="chat" element={<Chat />} />
           <Route path="view_my_log_requests" element={<ViewMyLogRequests />} />
