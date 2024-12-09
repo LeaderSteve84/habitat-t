@@ -41,22 +41,46 @@ def create_tenant():
     """
     data = request.json
     try:
-        # Check if a tenant/client with same email or phone number already exist
-        if tenantsCollection.find_one({"email": data['email']}):
-            return jsonify(
-                {"error": "Tenant with same email exist or inactive"}
-            ), 400
+        cluster = data.get('cluster', {})
+        cluster_dict = {
+       		"unit_id": ObjectId(cluster.get('unitId', '')),
+            "cluster_id": ObjectId(cluster.get('clusterId', '')),
+            "company_id": ObjectId(cluster.get('companyId', '')),
+            "cluster_name": cluster.get('clusterName', ''),
+            "lease_agreement_details": cluster.get('leaseAgreementDetails', ''),
+            "tenancy_info": cluster.get('tenancyInfo', {})
+        }
+        # Check if a tenant|client exist.
+        user = tenantsCollection.find_one({"email": data['email']})
+        if user:
+            existing_cluster = tenantsCollection.find_one({
+                "email": data['email'],
+                "clusters.cluster_id": ObjectId(cluster_dict['cluster_id'])
+            })
+            # check if tenent exist in the cluster
+            if existing_cluster:
+                return jsonify({"error": "Tenant already exist in this cluster"}), 400
 
-        tenant = Tenant(
-            unit_id=ObjectId(data['unitId']),
-            company_id=ObjectId(data['companyId']),
-            cluster_id=ObjectId(data['clusterId']),
-            email=data['email'],
-            password=generate_password_hash(data['password']),
-            tenancy_info=data['tenancyInfo'],
-            lease_agreement_details=data['leaseAgreementDetails'],
-            role=data['role']
-        )
+            # document to update
+            query = {"_id": user['_id']}
+
+            # update document using $push
+            tenantsCollection.update_one(query, {"$push": {"clusters": cluster_dict}})
+
+            return jsonify(
+                {
+                    "msg": "Tenant | client added to cluster successfully.",
+                    "tenantId": str(user['_id'])
+                }
+            ), 200
+        else:
+            # register tenant|client for the first time
+            tenant = Tenant(
+                email=data['email'],
+                password=generate_password_hash(data['password']),
+                role=data['role'],
+                clusters=[cluster_dict]
+            )
     except KeyError as e:
         return jsonify({"error": f"Missing field {str(e)}"}), 400
     except Exception as e:
@@ -89,29 +113,43 @@ def create_tenant():
 @tenant_bp.route('/api/cluster/tenants/<cluster_id>', methods=['GET', 'OPTIONS'])
 # @jwt_required()
 def get_all_tenants(cluster_id):
-    """Find all tenants from MongoDB and return a list of all the tenants."""
+    """Retrieve all tactive tenants in a cluster from MongoDB.
+    Args:
+        cluster_id (str): The id of the cluster (must be a valid id)
+
+    Returns:
+        JSON Response: List of tenants with there details or an error message..
+    """
+
     try:
-        tenants = tenantsCollection.find({"cluster_id": ObjectId(cluster_id), "active": True})
-        tenants_list = [{
-            "tenantId": str(tenant['_id']),
-            "dateCreated": tenant['date_created'],
-            "lastUpdated": tenant['date_updated'],
-            "unitId": str(tenant['unit_id']),
-            "email": tenant['email'],
-            "rentageType": tenant['tenancy_info']['type'],
-            "address": tenant['tenancy_info']['address'],
-            "rentageFee": tenant['tenancy_info']['fees'],
-            "rentagePaid": tenant['tenancy_info']['paid'],
-            "datePaid": tenant['tenancy_info']['datePaid'],
-            "rantageStarted": tenant['tenancy_info']['start'],
-            "rantageExpires": tenant['tenancy_info']['expires'],
-            "rentageArrears": tenant['tenancy_info']['arrears'],
-            "role": tenant['role'],
-            "leaseAgreementDetails": tenant['lease_agreement_details']
-        } for tenant in tenants]
+        # validate cluster_id
+        cluster_obj_id = ObjectId(cluster_id)
+
+        tenants = tenantsCollection.find({"clusters.cluster_id": cluster_obj_id, "active": True})
+        tenants_list = [
+            {
+			    "tenantId": str(tenant['_id']),
+			    "dateCreated": tenant['date_created'],
+                "lastUpdated": tenant['date_updated'],
+                "email": tenant['email'],
+                "role": tenant['role'],
+                "active": tenant['active'],
+                "clusters": [
+                    {**cluster, **{field: str(cluster[field]) for field in ['unit_id', 'cluster_id', 'company_id']}}
+                    for cluster in tenant.get('clusters', [])
+                    if str(cluster.get('cluster_id', '')) == cluster_id
+                ]
+            }
+            for tenant in tenants
+        ]
+        print(tenants_list)
         return jsonify(tenants_list), 200
+    except InvalidId:
+        return jsonify({"error": "Invalid cluster ID format"}), 404
     except PyMongoError as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Database error: {str(e)}"}), 500
+    except Exception as e:
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 400
 
 
 # Get a Specific Tenant Details
@@ -120,26 +158,24 @@ def get_tenant(cluster_id, tenant_id):
     """get specific tenant"""
     try:
         tenant = tenantsCollection.find_one(
-                {"_id": ObjectId(tenant_id), "cluster_id": ObjectId(cluster_id), "active": True}
+                {"_id": ObjectId(tenant_id), "active": True}
         )
         if tenant:
+
+            id_fields = ['unit_id', 'cluster_id', 'company_id']
+            matching_cluster = [
+                {**cluster, **{field: str(cluster[field]) for field in id_fields}}
+                for cluster in tenant['clusters']
+                if str(cluster['cluster_id']) == cluster_id
+            ]
             return jsonify({
                 "tenantId": str(tenant['_id']),
                 "dateCreated": tenant['date_created'],
                 "lastUpdated": tenant['date_updated'],
-                "unitId": str(tenant['unit_id']),
                 "email": tenant['email'],
-                "rentageType": tenant['tenancy_info']['type'],
-                "address": tenant['tenancy_info']['address'],
-                "rentageFee": tenant['tenancy_info']['fees'],
-                "rentagePaid": tenant['tenancy_info']['paid'],
-                "datePaid": tenant['tenancy_info']['datePaid'],
-                "rentageStarted": tenant['tenancy_info']['start'],
-                "rentageExpires": tenant['tenancy_info']['expires'],
-                "rentageArrears": tenant['tenancy_info']['arrears'],
                 "role": tenant['role'],
                 "active": tenant['active'],
-                "lease_agreement_details": tenant['lease_agreement_details']
+                "clusters": matching_cluster
             }), 200
         else:
             return jsonify({"error": "Tenant not found"}), 404

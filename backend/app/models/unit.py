@@ -10,7 +10,7 @@ class Unit:
     """Class representing a property instance"""
     def __init__(
         self, address, unit_type, unit_availability,
-        rental_fees, company_id, cluster_id, unit_id=None
+        rental_fees, company_id, cluster_id, cluster_name, unit_id=None
     ):
         """
         Initializer/object constructor.
@@ -24,6 +24,7 @@ class Unit:
         self.date_created = datetime.now()
         self.company_id = company_id
         self.cluster_id = cluster_id
+        self.cluster_name = cluster_name
         self.address = address
         self.unit_type = unit_type
         self.unit_availability = unit_availability
@@ -36,6 +37,7 @@ class Unit:
             "date_created": self.date_created,
             "company_id": self.company_id,
             "cluster_id": self.cluster_id,
+            "cluster_name": self.cluster_name,
             "address": self.address,
             "unit_type": self.unit_type,
             "unit_availability": self.unit_availability,

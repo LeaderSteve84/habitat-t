@@ -27,6 +27,7 @@ import CreateClusterAnnouncement from "./components/cluster/CreateClusterAnnounc
 import ViewClusterAnnouncements from "./components/cluster/ViewClusterAnnouncements";
 import UpdateClusterAnnouncement from "./components/cluster/UpdateClusterAnnouncement";
 import TenantDetails from "./components/cluster/TenantDetails";
+import TenantPayment from "./components/cluster/TenantPayment";
 import UpdateTenant from "./components/cluster/UpdateTenant";
 import ViewTenantProfile from "./components/cluster/ViewTenantProfile";
 import UpdateTenantProfile from "./components/cluster/UpdateTenantProfile";
@@ -88,6 +89,7 @@ const router = createBrowserRouter(
           <Route path="tenant_details/:tenantId" element={<TenantDetails />} >
                 <Route path="view_tenant_profile/:tenantId" element={<ViewTenantProfile />} />
           </Route>
+          <Route path="tenant_payment/:tenantId/:unitId" element={<TenantPayment />} />
           <Route path="update_tenant_profile/:tenantId/:profileId" element={<UpdateTenantProfile />} />
           <Route path="update_tenant/:tenantId" element={<UpdateTenant />} />
           <Route path="add_unit" element={<AddUnit />} />

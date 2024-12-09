@@ -24,6 +24,7 @@ def create_property_unit():
             address=data['address'],
             company_id=ObjectId(data['companyId']),
             cluster_id=ObjectId(data['clusterId']),
+            cluster_name=data['clusterName'],
             unit_type=data['type'],
             unit_availability=data['unitAvailability'],
             rental_fees=data['rentalFees']
@@ -59,6 +60,7 @@ def get_all_properties_unit(cluster_id):
             "dateCreated": unit['date_created'],
             "companyId": str(unit['company_id']),
             "clusterId": str(unit['cluster_id']),
+            "clusterName": unit['cluster_name'],
             "tenantId": str(unit.get('tenant_id', '')),
             "address": unit['address'],
             "type": unit['unit_type'],
@@ -85,6 +87,7 @@ def get_specific_property_unit(cluster_id, unit_id):
                 "dateCreated": unit['date_created'],
                 "companyId": str(unit['company_id']),
                 "clusterId": str(unit['cluster_id']),
+                "clusterName": unit['cluster_name'],
                 "tenantId": str(unit.get('tenant_id', '')),
                 "address": unit['address'],
                 "type": unit['unit_type'],

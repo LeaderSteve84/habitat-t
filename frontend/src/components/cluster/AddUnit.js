@@ -11,6 +11,7 @@ const AddUnit = () => {
     type: '',
     companyId: '',
     clusterId: '',
+    clusterName: '',
     address: '',
     unitAvailability: '',
     rentalFees: ''
@@ -42,7 +43,8 @@ const AddUnit = () => {
         ...formData, 
         unitAvailability: 'true',
         companyId: `${companyId}`,
-        clusterId: `${clusterId}`
+        clusterId: `${clusterId}`,
+        clusterName: `${clusterName}`
       };
 
       const response = await axios.post("/api/cluster/unit", data);

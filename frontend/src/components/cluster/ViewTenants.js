@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import useFetch from '../customHooks/useFetch';
 import { Link, useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -11,9 +11,13 @@ function ViewTenants() {
   const endpoint = `/api/cluster/tenants/${clusterId}`;
     
   const { data: tenants, isPending, error } = useFetch(endpoint);
+  if (tenants) {
+    console.log(tenants);
+  }
 
   const handleDeactivate = async (e, tenantId, unitId) => {
     e.preventDefault();
+    
     try {
       const response = await axios.delete(`/api/cluster/tenants/${tenantId}`);
 
@@ -29,9 +33,10 @@ function ViewTenants() {
     } catch (error) {
       console.error(error);
 
-      const errorMessage = error.response?.data?.error || "Error deactivating tenant/client, try again";
+      const errorMessage = error.response?.data?.error || "Error deactivating tenant | client, try again";
       setMessage({ error: errorMessage });
     }
+    
   }
 
 
@@ -59,29 +64,37 @@ function ViewTenants() {
                      <th scope="col">Email</th>
                      <th scope="col">Rentage Type</th>
                      <th scope="col">Address</th>
-             	     <th scope="col">Arrears</th>
+             	     <th scope="col">Fees|Amounts</th>
                      <th scope="col">Details</th>
+                     <th scope="col">Finance</th>
                      <th scope="col">Actions</th>
                   </tr>
                </thead>
                <tbody className="table-light shadow">
-               { tenants.map((tenant, index) => (
+               { tenants?.map((tenant, index) => (
              	    <tr key={ tenant.tenantId }>
                        <th scope="row">{index + 1}</th>
                        <td>{ tenant.dateCreated }</td>
                        <td>{ tenant.email }</td>
-		       <td>{ tenant.rentageType }</td>
-                       <td>{ tenant.address }</td>
-		       <td>{ tenant.rentageArrears }</td>
+                       { tenant?.clusters?.map((cluster) => (
+                           <React.Fragment key={ cluster.cluster_id }>
+                               <td>{ cluster.tenancy_info?.type || "NA" }</td>
+                               <td>{ cluster.tenancy_info?.address || "NA" }</td>
+                               <td>{ cluster.tenancy_info?.fees  || "NA"}</td>
+                           </React.Fragment>
+                       ))}
                        <td>
 			  <Link className="btn btn-info" as={Link} to={`/cluster_dashboard/${companyId}/${clusterId}/${clusterName}/tenant_details/${tenant.tenantId}`}>View Details</Link>
+                       </td>
+                       <td>
+                          <Link className="btn btn-info" as={Link} to={`/cluster_dashboard/${companyId}/${clusterId}/${clusterName}/tenant_payment/${tenant.tenantId}/${tenant.clusters?.[0]?.unit_id}`}>Enter Payments</Link>
                        </td>
                        <td>
 			  <Link className="btn btn-warning" as={Link} to={`/cluster_dashboard/${companyId}/${clusterId}/${clusterName}/update_tenant/${tenant.tenantId}`}>Update</Link>
                                 {" | "}
 			  <button className="btn btn-danger" onClick={(e) => {
                                   if (window.confirm("Are you sure you want to deactivate tenant.")) {
-                                  handleDeactivate(e, tenant.tenantId, tenant.unitId)
+                                  handleDeactivate(e, tenant.tenantId, tenant.clusters?.[0]?.unit_id)
                                   }
                               }}
                           >

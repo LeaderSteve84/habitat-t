@@ -8,12 +8,19 @@ const AdmitTenant = () => {
   const { companyId, clusterId, clusterName, unitId, type, address, fees } = useParams();
 
   const [formData, setFormData] = useState({
-    unitId: `${unitId}`,
-    companyId: `${companyId}`,
-    clusterId: `${clusterId}`,
     email: '',
-    tenancyInfo: { type: `${type}`, address: `${address}`, fees: `${fees}`, paid: '', datePaid: '', start: '', expires: '', arrears: '' },
-    leaseAgreementDetails: ''
+    cluster: {
+      unitId: `${unitId}`,
+      clusterId: `${clusterId}`,
+      companyId: `${companyId}`,
+      clusterName: `${clusterName}`,
+      leaseAgreementDetails: '',
+      tenancyInfo : {
+        type: `${type}`,
+        address: `${address}`,
+        fees: `${fees}`
+      }
+    }
   });
 
   const autoGeneratePassword = () => {
@@ -37,18 +44,6 @@ const AdmitTenant = () => {
     }
   };
 
-  const formatDate = (date) => {
-    const d = new Date(date);
-    let month = '' + (d.getMonth() + 1);
-    let day = '' + d.getDate();
-    const year = d.getFullYear();
-
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-
-    return [year, month, day].join('-');
-  };
-
   const [message, setMessage] = useState(null);
     
   const handleSubmit = async (e) => {
@@ -57,14 +52,8 @@ const AdmitTenant = () => {
     try { 
       const data = {
         ...formData,
-        tenancyInfo: {
-	  ...formData.tenancyInfo,
-	  datePaid: formatDate(formData.tenancyInfo.datePaid),
-	  start: formatDate(formData.tenancyInfo.start),
-	  expires: formatDate(formData.tenancyInfo.expires)
-        }, 
         password: autoGeneratePassword(), 
-        role: "tenant",
+        role: "tenant"
       };
       const response = await axios.post("/api/cluster/tenants", data);
       const { msg, tenantId } = response.data;
@@ -92,98 +81,41 @@ const AdmitTenant = () => {
   return (
     <div className="container my-5">
       <div className="row justify-content-center">
-      <div className="col-md-9">
-      <div className="card shadow-lg">
-      <div className="card-body">
-      <h2 className="card-title text-center mb-1">Admit Clients</h2>
-      <p className="text-center mb-4 text-primary">{ clusterName }</p>
-      { message && (
-        <div>
-           { message.msg && <p className="alert alert-info">{ message.msg }</p> }
-           { message.error && <p className="alert alert-danger">{ message.error }</p> }
-           { message.amsg && <p className="alert alert-info">{ message.amsg }</p> }
-        </div>
-      )}
-      <form onSubmit={handleSubmit}>
-          <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Unit Id:</label>
-             <div className="col-sm-10">
-                 <input type="text" className="form-control" name="propertyId" value={formData.unitId} required readOnly />
-             </div>
-          </div>
-	  <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Email:</label>
-             <div className="col-sm-10">
-             	 <input type="email" className="form-control" name="email" value={formData.email} required onChange={handleChange} />
-             </div>
-          </div>
-          <h4 className="h5 fw-bold">Tenancy Information</h4>
-          <div className="border p-3">
-	  <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Type:</label>
-             <div className="col-sm-10">
-                 <input type="text" className="form-control" name="tenancyInfo.type" value={formData.tenancyInfo.type} required readOnly />
-             </div>
-          </div>
-	  <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Address:</label>
-             <div className="col-sm-10">
-                 <input type="text" className="form-control" name="tenancyInfo.address" value={formData.tenancyInfo.address} required readOnly />
-             </div>
-          </div>
-          <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Fees:</label>
-             <div className="col-sm-10">
-                 <input type="number" className="form-control" name="tenancyInfo.fees" value={formData.tenancyInfo.fees} required readOnly />
-             </div>
-          </div>
-          <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Amount Paid:</label>
-             <div className="col-sm-10">
-                 <input type="number" className="form-control" name="tenancyInfo.paid" value={formData.tenancyInfo.paid} required onChange={handleChange} />
-             </div>
-          </div>
-          <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Date Paid:</label>
-             <div className="col-sm-10">
-                 <input type="date" className="form-control" name="tenancyInfo.datePaid" value={formData.tenancyInfo.datePaid} required onChange={handleChange} />
-             </div>
-          </div>
-	  <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Start:</label>
-             <div className="col-sm-10">
-                 <input type="date" className="form-control" name="tenancyInfo.start" value={formData.tenancyInfo.start} required onChange={handleChange} />
-             </div>
-          </div>
-	  <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Expires:</label>
-             <div className="col-sm-10">
-                 <input type="date" className="form-control" name="tenancyInfo.expires" value={formData.tenancyInfo.expires} required onChange={handleChange} />
-             </div>
-          </div>
-	  <div className="mb-3 row">
-             <label className="col-sm-2 col-form-label">Arrears:</label>
-             <div className="col-sm-10">
-                 <input type="number" className="form-control" name="tenancyInfo.arrears" value={formData.tenancyInfo.arrears} required onChange={handleChange} />
-             </div>
-          </div>
-          </div>
+        <div className="col-md-9">
+          <div className="card shadow-lg">
+            <div className="card-body">
+               <h2 className="card-title text-center mb-1">Admit Clients</h2>
+               <p className="text-center mb-4 text-primary">{ clusterName }</p>
+               { message && (
+                  <div>
+                     { message.msg && <p className="alert alert-info">{ message.msg }</p> }
+                     { message.error && <p className="alert alert-danger">{ message.error }</p> }
+                     { message.amsg && <p className="alert alert-info">{ message.amsg }</p> }
+                  </div>
+               )}
+               <form onSubmit={handleSubmit}>
+	          <div className="mb-3 row">
+                     <label className="col-sm-2 col-form-label">Email:</label>
+                     <div className="col-sm-10">
+             	       <input type="email" className="form-control" name="email" value={formData.email} required onChange={handleChange} />
+                     </div>
+                  </div>
                 
-          <div className="mb-3 row">
-             <label className="col-sm-5 col-form-label fw-bold h5">Lease Agreement:</label>
-	     <select className="form-select" name="leaseAgreementDetails" value={formData.leaseAgreementDetails} required onChange={handleChange}>
-		 <option value="">Select Lease Agreement</option>
-		 <option value="https://3bedroomduplexurllink.example">Three (3) Bedrooms Duplex</option>
-		 <option value="https://2bedroomduplexurllink.example">Two (2) Bedrooms Duplex</option>
-		 <option value="https://2bedroomapartmenturllink.example">Two (2) Bedrooms Apartment</option>
-		 <option value="https://shopurllink.example">Commercial Fascility</option>
-             </select>
-	  </div>
-          <button type="submit" className="btn btn-primary mb-3 w-100">Admit Tenant/Client</button>
-      </form>
-      </div>
-      </div>
-      </div>
+                  <div className="mb-3 row">
+                     <label className="col-sm-5 col-form-label fw-bold h5">Lease Agreement:</label>
+	             <select className="form-select" name="cluster.leaseAgreementDetails" value={formData.cluster.leaseAgreementDetails} onChange={handleChange}>
+		        <option value="">Select Lease Agreement</option>
+		        <option value="https://3bedroomduplexurllink.example">Three (3) Bedrooms Duplex</option>
+		        <option value="https://2bedroomduplexurllink.example">Two (2) Bedrooms Duplex</option>
+		        <option value="https://2bedroomapartmenturllink.example">Two (2) Bedrooms Apartment</option>
+		        <option value="https://shopurllink.example">Commercial Fascility</option>
+                     </select>
+	          </div>
+                  <button type="submit" className="btn btn-primary mb-3 w-100">Admit Tenant | Client</button>
+               </form>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
